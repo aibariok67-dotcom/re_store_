@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+
+.venv/
+env/
+
+.env
+
+.vscode/
+.idea/
+
+alembic/versions/__pycache__/
+
+*.log

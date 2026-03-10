@@ -1,0 +1,468 @@
+
+--- FILE: ./main.py ---
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from routers import games, categories, platforms
+from core.database import engine, Base
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+
+app = FastAPI(title="RE Store", version="0.2", lifespan=lifespan)
+
+app.include_router(games.router)
+app.include_router(categories.router)
+app.include_router(platforms.router)
+--- FILE: ./requirements.txt ---
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+sqlalchemy==2.0.30
+asyncpg==0.29.0
+alembic==1.13.1
+pydantic==2.7.1
+pydantic-settings==2.2.1
+python-dotenv==1.0.1
+--- FILE: ./core/database.py ---
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/re_store"
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+
+AsyncSessionLocal = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+Base = declarative_base()
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+--- FILE: ./models/__init__.py ---
+from .game import Game
+from .category import Category
+from .platform import Platform
+
+--- FILE: ./models/game_categories.py ---
+from sqlalchemy import Table, Column, ForeignKey
+from core.database import Base
+
+game_categories = Table(
+    "game_categories",
+    Base.metadata,
+    Column("game_id", ForeignKey("games.id"), primary_key=True),
+    Column("category_id", ForeignKey("categories.id"), primary_key=True),
+)
+--- FILE: ./models/category.py ---
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from core.database import Base
+from .game_categories import game_categories
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    games = relationship(
+        "Game",
+        secondary=game_categories,
+        back_populates="categories",
+        lazy="selectin"
+    )
+--- FILE: ./models/game.py ---
+from sqlalchemy import String, Float, Date
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from core.database import Base
+from .game_categories import game_categories
+from .game_platforms import game_platforms
+from datetime import date as date_type
+
+class Game(Base):
+    __tablename__ = "games"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    price: Mapped[float] = mapped_column(Float, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    publisher: Mapped[str] = mapped_column(String, nullable=True)
+    developer: Mapped[str] = mapped_column(String, nullable=True)
+    series: Mapped[str] = mapped_column(String, nullable=True)
+    release_date: Mapped[date_type] = mapped_column(Date, nullable=True)
+    nominations: Mapped[str] = mapped_column(String, nullable=True)
+
+    categories = relationship(
+        "Category",
+        secondary=game_categories,
+        back_populates="games",
+        lazy="selectin"
+    )
+
+    platforms = relationship(
+        "Platform",
+        secondary=game_platforms,
+        back_populates="games",
+        lazy="selectin"
+    )
+--- FILE: ./models/platform.py ---
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from core.database import Base
+from .game_platforms import game_platforms
+
+class Platform(Base):
+    __tablename__ = "platforms"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    games = relationship(
+        "Game",
+        secondary=game_platforms,
+        back_populates="platforms",
+        lazy="selectin"
+    )
+--- FILE: ./models/game_platforms.py ---
+from sqlalchemy import Table, Column, ForeignKey
+from core.database import Base
+
+game_platforms = Table(
+    "game_platforms",
+    Base.metadata,
+    Column("game_id", ForeignKey("games.id"), primary_key=True),
+    Column("platform_id", ForeignKey("platforms.id"), primary_key=True),
+)
+--- FILE: ./schemas/category.py ---
+from pydantic import BaseModel
+
+class CategoryBase(BaseModel):
+    name: str
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class CategoryUpdate(CategoryBase):
+    pass
+
+class CategoryResponse(CategoryBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+--- FILE: ./schemas/game.py ---
+from pydantic import BaseModel, Field
+from datetime import date
+from typing import List, Optional
+from .category import CategoryResponse
+from .platform import PlatformResponse
+
+
+class GameBase(BaseModel):
+    title: str
+    price: float
+    description: Optional[str] = None
+    publisher: Optional[str] = None
+    developer: Optional[str] = None
+    series: Optional[str] = None
+    release_date: Optional[date] = None
+    nominations: Optional[str] = None
+
+
+class GameCreate(GameBase):
+    category_ids: Optional[List[int]] = Field(default_factory=list)
+    platform_ids: Optional[List[int]] = Field(default_factory=list)
+
+
+class GameUpdate(GameBase):
+    category_ids: Optional[List[int]] = Field(default_factory=list)
+    platform_ids: Optional[List[int]] = Field(default_factory=list)
+
+
+class GameResponse(GameBase):
+    id: int
+    categories: List[CategoryResponse] = []
+    platforms: List[PlatformResponse] = []
+
+    class Config:
+        from_attributes = True
+--- FILE: ./schemas/platform.py ---
+from pydantic import BaseModel
+
+class PlatformBase(BaseModel):
+    name: str
+
+class PlatformCreate(PlatformBase):
+    pass
+
+class PlatformUpdate(PlatformBase):
+    pass
+
+class PlatformResponse(PlatformBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+--- FILE: ./services/category_service.py ---
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from fastapi import HTTPException
+from models.category import Category
+from schemas.category import CategoryCreate, CategoryUpdate
+
+async def get_categories(db: AsyncSession):
+    result = await db.execute(select(Category))
+    return result.unique().scalars().all()
+
+async def get_category(db: AsyncSession, category_id: int):
+    result = await db.execute(select(Category).where(Category.id == category_id))
+    category = result.unique().scalars().one_or_none()
+    if not category:
+        raise HTTPException(status_code=404, detail=f"Category {category_id} not found")
+    return category
+
+async def create_category(db: AsyncSession, category: CategoryCreate):
+    new_category = Category(**category.model_dump())
+    db.add(new_category)
+    await db.commit()
+    await db.refresh(new_category)
+    return new_category
+
+async def update_category(db: AsyncSession, category_id: int, category_data: CategoryUpdate):
+    category = await get_category(db, category_id)
+    for field, value in category_data.model_dump().items():
+        setattr(category, field, value)
+    await db.commit()
+    await db.refresh(category)
+    return category
+
+async def delete_category(db: AsyncSession, category_id: int):
+    category = await get_category(db, category_id)
+    await db.delete(category)
+    await db.commit()
+    return category
+--- FILE: ./services/game_service.py ---
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from fastapi import HTTPException
+from models.game import Game
+from models.category import Category
+from models.platform import Platform
+from schemas.game import GameCreate, GameUpdate
+
+
+async def get_games(db: AsyncSession, category_ids=None, platform_ids=None):
+    category_ids = category_ids or []
+    platform_ids = platform_ids or []
+
+    query = select(Game).distinct()
+    if category_ids:
+        query = query.join(Game.categories).where(Category.id.in_(category_ids))
+    if platform_ids:
+        query = query.join(Game.platforms).where(Platform.id.in_(platform_ids))
+    result = await db.execute(query)
+    return result.unique().scalars().all()
+
+
+async def get_game(db: AsyncSession, game_id: int):
+    result = await db.execute(select(Game).where(Game.id == game_id))
+    game = result.unique().scalars().one_or_none()
+    if not game:
+        raise HTTPException(status_code=404, detail=f"Game {game_id} not found")
+    return game
+
+
+async def _resolve_relations(db: AsyncSession, category_ids: list[int], platform_ids: list[int]):
+    """Load Category and Platform ORM objects by their IDs."""
+    categories = []
+    if category_ids:
+        result = await db.execute(select(Category).where(Category.id.in_(category_ids)))
+        categories = result.unique().scalars().all()
+        if len(categories) != len(category_ids):
+            raise HTTPException(status_code=400, detail="One or more category IDs not found")
+
+    platforms = []
+    if platform_ids:
+        result = await db.execute(select(Platform).where(Platform.id.in_(platform_ids)))
+        platforms = result.unique().scalars().all()
+        if len(platforms) != len(platform_ids):
+            raise HTTPException(status_code=400, detail="One or more platform IDs not found")
+
+    return categories, platforms
+
+
+async def create_game(db: AsyncSession, game: GameCreate):
+    category_ids = game.category_ids or []
+    platform_ids = game.platform_ids or []
+
+    game_data = game.model_dump(exclude={"category_ids", "platform_ids"})
+    new_game = Game(**game_data)
+
+    categories, platforms = await _resolve_relations(db, category_ids, platform_ids)
+    new_game.categories = categories
+    new_game.platforms = platforms
+
+    db.add(new_game)
+    await db.commit()
+    await db.refresh(new_game)
+    return new_game
+
+
+async def update_game(db: AsyncSession, game_id: int, game_data: GameUpdate):
+    game = await get_game(db, game_id)
+
+    category_ids = game_data.category_ids or []
+    platform_ids = game_data.platform_ids or []
+
+    for field, value in game_data.model_dump(exclude={"category_ids", "platform_ids"}).items():
+        setattr(game, field, value)
+
+    categories, platforms = await _resolve_relations(db, category_ids, platform_ids)
+    game.categories = categories
+    game.platforms = platforms
+
+    await db.commit()
+    await db.refresh(game)
+    return game
+
+
+async def delete_game(db: AsyncSession, game_id: int):
+    game = await get_game(db, game_id)
+    await db.delete(game)
+    await db.commit()
+    return game
+--- FILE: ./services/platform_service.py ---
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from fastapi import HTTPException
+from models.platform import Platform
+from schemas.platform import PlatformCreate, PlatformUpdate
+
+async def get_platforms(db: AsyncSession):
+    result = await db.execute(select(Platform))
+    return result.unique().scalars().all()
+
+async def get_platform(db: AsyncSession, platform_id: int):
+    result = await db.execute(select(Platform).where(Platform.id == platform_id))
+    platform = result.unique().scalars().one_or_none()
+    if not platform:
+        raise HTTPException(status_code=404, detail=f"Platform {platform_id} not found")
+    return platform
+
+async def create_platform(db: AsyncSession, platform: PlatformCreate):
+    new_platform = Platform(**platform.model_dump())
+    db.add(new_platform)
+    await db.commit()
+    await db.refresh(new_platform)
+    return new_platform
+
+async def update_platform(db: AsyncSession, platform_id: int, platform_data: PlatformUpdate):
+    platform = await get_platform(db, platform_id)
+    for field, value in platform_data.model_dump().items():
+        setattr(platform, field, value)
+    await db.commit()
+    await db.refresh(platform)
+    return platform
+
+async def delete_platform(db: AsyncSession, platform_id: int):
+    platform = await get_platform(db, platform_id)
+    await db.delete(platform)
+    await db.commit()
+    return platform
+--- FILE: ./routers/categories.py ---
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from core.database import get_db
+from services import category_service
+from schemas.category import CategoryResponse, CategoryCreate, CategoryUpdate
+
+router = APIRouter(prefix="/categories", tags=["Categories"])
+
+@router.get("/", response_model=list[CategoryResponse])
+async def get_categories(db: AsyncSession = Depends(get_db)):
+    return await category_service.get_categories(db)
+
+@router.get("/{category_id}", response_model=CategoryResponse)
+async def get_category(category_id: int, db: AsyncSession = Depends(get_db)):
+    return await category_service.get_category(db, category_id)
+
+@router.post("/", response_model=CategoryResponse)
+async def create_category(category: CategoryCreate, db: AsyncSession = Depends(get_db)):
+    return await category_service.create_category(db, category)
+
+@router.put("/{category_id}", response_model=CategoryResponse)
+async def update_category(category_id: int, category: CategoryUpdate, db: AsyncSession = Depends(get_db)):
+    return await category_service.update_category(db, category_id, category)
+
+@router.delete("/{category_id}", response_model=CategoryResponse)
+async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)):
+    return await category_service.delete_category(db, category_id)
+--- FILE: ./routers/games.py ---
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from core.database import get_db
+from services import game_service
+from schemas.game import GameResponse, GameCreate, GameUpdate
+
+router = APIRouter(prefix="/games", tags=["Games"])
+
+@router.get("/", response_model=list[GameResponse])
+async def get_games(
+    category_ids: list[int] = Query(default=[]),
+    platform_ids: list[int] = Query(default=[]),
+    db: AsyncSession = Depends(get_db)
+):
+    return await game_service.get_games(db, category_ids, platform_ids)
+
+@router.get("/{game_id}", response_model=GameResponse)
+async def get_game(game_id: int, db: AsyncSession = Depends(get_db)):
+    return await game_service.get_game(db, game_id)
+
+@router.post("/", response_model=GameResponse)
+async def create_game(game: GameCreate, db: AsyncSession = Depends(get_db)):
+    return await game_service.create_game(db, game)
+
+@router.put("/{game_id}", response_model=GameResponse)
+async def update_game(game_id: int, game: GameUpdate, db: AsyncSession = Depends(get_db)):
+    return await game_service.update_game(db, game_id, game)
+
+@router.delete("/{game_id}", response_model=GameResponse)
+async def delete_game(game_id: int, db: AsyncSession = Depends(get_db)):
+    return await game_service.delete_game(db, game_id)
+--- FILE: ./routers/platforms.py ---
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from core.database import get_db
+from services import platform_service
+from schemas.platform import PlatformResponse, PlatformCreate, PlatformUpdate
+
+router = APIRouter(prefix="/platforms", tags=["Platforms"])
+
+@router.get("/", response_model=list[PlatformResponse])
+async def get_platforms(db: AsyncSession = Depends(get_db)):
+    return await platform_service.get_platforms(db)
+
+@router.get("/{platform_id}", response_model=PlatformResponse)
+async def get_platform(platform_id: int, db: AsyncSession = Depends(get_db)):
+    return await platform_service.get_platform(db, platform_id)
+
+@router.post("/", response_model=PlatformResponse)
+async def create_platform(platform: PlatformCreate, db: AsyncSession = Depends(get_db)):
+    return await platform_service.create_platform(db, platform)
+
+@router.put("/{platform_id}", response_model=PlatformResponse)
+async def update_platform(platform_id: int, platform: PlatformUpdate, db: AsyncSession = Depends(get_db)):
+    return await platform_service.update_platform(db, platform_id, platform)
+
+@router.delete("/{platform_id}", response_model=PlatformResponse)
+async def delete_platform(platform_id: int, db: AsyncSession = Depends(get_db)):
+    return await platform_service.delete_platform(db, platform_id)
+--- FILE: ./full_project_code.txt ---
