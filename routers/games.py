@@ -4,15 +4,27 @@ from core.database import get_db
 from services import game_service
 from schemas.game import GameResponse, GameCreate, GameUpdate
 
+
 router = APIRouter(prefix="/games", tags=["Games"])
 
 @router.get("/", response_model=list[GameResponse])
 async def get_games(
     category_ids: list[int] = Query(default=[]),
     platform_ids: list[int] = Query(default=[]),
+    search: str = Query(default=None),
+    min_price: float = Query(default=None),
+    max_price: float = Query(default=None),
+    min_rating: float = Query(default=None),
+    developer: str = Query(default=None),
+    release_date_from: str = Query(default=None),
+    release_date_to: str = Query(default=None),
     db: AsyncSession = Depends(get_db)
 ):
-    return await game_service.get_games(db, category_ids, platform_ids)
+    return await game_service.get_games(
+        db, category_ids, platform_ids, search, 
+        min_price, max_price, min_rating,
+        developer, release_date_from, release_date_to
+    )
 
 @router.get("/{game_id}", response_model=GameResponse)
 async def get_game(game_id: int, db: AsyncSession = Depends(get_db)):
