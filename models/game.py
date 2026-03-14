@@ -17,7 +17,7 @@ class Game(Base):
     series: Mapped[str] = mapped_column(String, nullable=True)
     release_date: Mapped[date_type] = mapped_column(Date, nullable=True)
     nominations: Mapped[str] = mapped_column(String, nullable=True)
-
+    rating: Mapped[float] = mapped_column(Float, nullable=True)
     categories = relationship(
         "Category",
         secondary=game_categories,

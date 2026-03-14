@@ -14,6 +14,7 @@ class GameBase(BaseModel):
     series: Optional[str] = None
     release_date: Optional[date] = None
     nominations: Optional[str] = None
+    rating: Optional[float] = None 
 
 
 class GameCreate(GameBase):
