@@ -16,7 +16,7 @@ def parse_date(value: str, is_end: bool = False) -> date:
 
 async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
                     search=None, min_price=None, max_price=None, min_rating=None,
-                    developer=None, publisher=None, release_date_from=None, release_date_to=None, page=1, limit=10):
+                    developer=None, publisher=None, release_date_from=None, release_date_to=None, page=1, limit=10, sort_by="id", order="asc"):
     category_ids = category_ids or []
     platform_ids = platform_ids or []
 
@@ -43,6 +43,19 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
     if release_date_to is not None:
         query = query.where(Game.release_date <= parse_date(release_date_to, is_end=True))
 
+    sort_fields = {
+        "id": Game.id,
+        "title": Game.title,
+        "price": Game.price,
+        "rating": Game.rating,
+        "release_date": Game.release_date,
+    }
+    sort_column = sort_fields.get(sort_by, Game.id)
+    if order == "desc":
+        query = query.order_by(sort_column.desc())
+    else:
+        query = query.order_by(sort_column.asc())
+    
     offset = (page - 1) * limit
     query = query.offset(offset).limit(limit)
 
