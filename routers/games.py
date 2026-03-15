@@ -19,12 +19,15 @@ async def get_games(
     publisher: str = Query(default=None),
     release_date_from: str = Query(default=None),
     release_date_to: str = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
     return await game_service.get_games(
         db, category_ids, platform_ids, search, 
         min_price, max_price, min_rating,
-        developer, publisher, release_date_from, release_date_to
+        developer, publisher, release_date_from, release_date_to,
+        page, limit
     )
 
 @router.get("/{game_id}", response_model=GameResponse)

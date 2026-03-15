@@ -16,7 +16,7 @@ def parse_date(value: str, is_end: bool = False) -> date:
 
 async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
                     search=None, min_price=None, max_price=None, min_rating=None,
-                    developer=None, publisher=None, release_date_from=None, release_date_to=None):
+                    developer=None, publisher=None, release_date_from=None, release_date_to=None, page=1, limit=10):
     category_ids = category_ids or []
     platform_ids = platform_ids or []
 
@@ -42,6 +42,9 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
         query = query.where(Game.release_date >= parse_date(release_date_from))
     if release_date_to is not None:
         query = query.where(Game.release_date <= parse_date(release_date_to, is_end=True))
+
+    offset = (page - 1) * limit
+    query = query.offset(offset).limit(limit)
 
     result = await db.execute(query)
     return result.unique().scalars().all()
