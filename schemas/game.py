@@ -34,6 +34,20 @@ class GameUpdate(GameBase):
     platform_ids: Optional[List[int]] = Field(default_factory=list)
 
 
+class GamePatch(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=1)
+    price: Optional[float] = Field(default=None, gt=0)
+    description: Optional[str] = None
+    publisher: Optional[str] = None
+    developer: Optional[str] = None
+    series: Optional[str] = None
+    release_date: Optional[date] = None
+    nominations: Optional[str] = None
+    rating: Optional[float] = Field(default=None, ge=0, le=10)
+    category_ids: Optional[List[int]] = None
+    platform_ids: Optional[List[int]] = None
+
+
 class GameResponse(GameBase):
     id: int
     categories: List[CategoryResponse] = []

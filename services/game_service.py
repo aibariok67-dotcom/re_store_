@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from models.game import Game
 from models.category import Category
 from models.platform import Platform
-from schemas.game import GameCreate, GameUpdate
+from schemas.game import GameCreate, GamePatch, GameUpdate
 from datetime import date
 
 def parse_date(value: str, is_end: bool = False) -> date:
@@ -107,6 +107,24 @@ async def update_game(db: AsyncSession, game_id: int, game_data: GameUpdate):
     await db.refresh(game)
     return game
 
+async def patch_game(db: AsyncSession, game_id: int, game_data: GamePatch):
+    game = await get_game(db, game_id)
+
+    update_fields = game_data.model_dump(exclude_unset=True, exclude={"category_ids", "platform_ids"})
+    for field, value in update_fields.items():
+        setattr(game, field, value)
+
+    if game_data.category_ids is not None:
+        result = await db.execute(select(Category).where(Category.id.in_(game_data.category_ids)))
+        game.categories = result.unique().scalars().all()
+
+    if game_data.platform_ids is not None:
+        result = await db.execute(select(Platform).where(Platform.id.in_(game_data.platform_ids)))
+        game.platforms = result.unique().scalars().all()
+
+    await db.commit()
+    await db.refresh(game)
+    return game
 
 async def delete_game(db: AsyncSession, game_id: int):
     game = await get_game(db, game_id)

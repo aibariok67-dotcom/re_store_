@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from services import game_service
-from schemas.game import GameResponse, GameCreate, GameUpdate
+from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate
 
 
 router = APIRouter(prefix="/games", tags=["Games"])
@@ -38,6 +38,10 @@ async def create_game(game: GameCreate, db: AsyncSession = Depends(get_db)):
 @router.put("/{game_id}", response_model=GameResponse)
 async def update_game(game_id: int, game: GameUpdate, db: AsyncSession = Depends(get_db)):
     return await game_service.update_game(db, game_id, game)
+
+@router.patch("/{game_id}", response_model=GameResponse)
+async def patch_game(game_id: int, game: GamePatch, db: AsyncSession = Depends(get_db)):
+    return await game_service.patch_game(db, game_id, game)
 
 @router.delete("/{game_id}", response_model=GameResponse)
 async def delete_game(game_id: int, db: AsyncSession = Depends(get_db)):
