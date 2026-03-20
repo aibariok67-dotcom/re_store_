@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 import os
 
 from core.database import Base
-from models import game, category, platform, game_categories, game_platforms, user
+from models import game, category, platform, game_categories, game_platforms, user, review
+
 
 load_dotenv()
 
