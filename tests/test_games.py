@@ -1,12 +1,11 @@
 import pytest
 
 @pytest.mark.asyncio
-async def test_create_game(client):
-    response = await client.post("/games/", json={
-        "title": "The Witcher 3",
-        "price": 29.99,
-        "rating": 9.5
-    })
+async def test_create_game(client, admin_token):
+    response = await client.post("/games/", 
+        json={"title": "The Witcher 3", "price": 29.99, "rating": 9.5},
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "The Witcher 3"
@@ -14,9 +13,10 @@ async def test_create_game(client):
     assert data["rating"] == 9.5
 
 @pytest.mark.asyncio
-async def test_get_games(client):
-    await client.post("/games/", json={"title": "Witcher 3", "price": 29.99})
-    await client.post("/games/", json={"title": "Cyberpunk 2077", "price": 49.99})
+async def test_get_games(client, admin_token):
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    await client.post("/games/", json={"title": "Witcher 3", "price": 29.99}, headers=headers)
+    await client.post("/games/", json={"title": "Cyberpunk 2077", "price": 49.99}, headers=headers)
 
     response = await client.get("/games/")
     assert response.status_code == 200
@@ -28,9 +28,10 @@ async def test_get_game_not_found(client):
     assert response.status_code == 404
 
 @pytest.mark.asyncio
-async def test_search_by_title(client):
-    await client.post("/games/", json={"title": "The Witcher 3", "price": 29.99})
-    await client.post("/games/", json={"title": "Cyberpunk 2077", "price": 49.99})
+async def test_search_by_title(client, admin_token):
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    await client.post("/games/", json={"title": "The Witcher 3", "price": 29.99}, headers=headers)
+    await client.post("/games/", json={"title": "Cyberpunk 2077", "price": 49.99}, headers=headers)
 
     response = await client.get("/games/?search=witcher")
     assert response.status_code == 200
@@ -39,9 +40,10 @@ async def test_search_by_title(client):
     assert data[0]["title"] == "The Witcher 3"
 
 @pytest.mark.asyncio
-async def test_filter_by_price(client):
-    await client.post("/games/", json={"title": "Cheap Game", "price": 5.99})
-    await client.post("/games/", json={"title": "Expensive Game", "price": 99.99})
+async def test_filter_by_price(client, admin_token):
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    await client.post("/games/", json={"title": "Cheap Game", "price": 5.99}, headers=headers)
+    await client.post("/games/", json={"title": "Expensive Game", "price": 99.99}, headers=headers)
 
     response = await client.get("/games/?max_price=10")
     assert response.status_code == 200
@@ -50,11 +52,17 @@ async def test_filter_by_price(client):
     assert data[0]["title"] == "Cheap Game"
 
 @pytest.mark.asyncio
-async def test_invalid_rating(client):
-    response = await client.post("/games/", json={"title": "Test", "price": 10.0, "rating": 15})
+async def test_invalid_rating(client, admin_token):
+    response = await client.post("/games/",
+        json={"title": "Test", "price": 10.0, "rating": 15},
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
     assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_invalid_price(client):
-    response = await client.post("/games/", json={"title": "Test", "price": -5})
+async def test_invalid_price(client, admin_token):
+    response = await client.post("/games/",
+        json={"title": "Test", "price": -5},
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
     assert response.status_code == 422
