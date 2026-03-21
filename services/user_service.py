@@ -31,12 +31,21 @@ async def register_user(db: AsyncSession, data: UserCreate) -> User:
     return user
 
 async def login_user(db: AsyncSession, email: str, password: str) -> str:
+    from datetime import datetime, timezone
+
     user = await get_user_by_email(db, email)
     if not user:
         raise ValueError("Неверный email или пароль")
 
     if not verify_password(password, user.hashed_password):
         raise ValueError("Неверный email или пароль")
+
+    # Проверяем бан
+    if user.is_banned:
+        raise ValueError("Ваш аккаунт заблокирован навсегда")
+
+    if user.banned_until and user.banned_until > datetime.now(timezone.utc):
+        raise ValueError(f"Ваш аккаунт заблокирован до {user.banned_until.strftime('%d.%m.%Y %H:%M')}")
 
     token = create_access_token({"sub": str(user.id)})
     return token

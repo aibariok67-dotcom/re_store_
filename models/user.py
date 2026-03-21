@@ -11,4 +11,6 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_verified = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
+    is_banned = Column(Boolean, default=False)          # ← забанен навсегда
+    banned_until = Column(DateTime(timezone=True), nullable=True)  # ← забанен до даты
     created_at = Column(DateTime(timezone=True), server_default=func.now())
