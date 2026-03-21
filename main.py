@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from routers import games, categories, platforms, auth, reviews, uploads, admin
+from routers import favorites, games, categories, platforms, auth, reviews, uploads, admin
 
 app = FastAPI(title="RE Store", version="0.2")
 
@@ -14,3 +14,4 @@ app.include_router(auth.router)
 app.include_router(reviews.router)
 app.include_router(uploads.router)
 app.include_router(admin.router)
+app.include_router(favorites.router)
