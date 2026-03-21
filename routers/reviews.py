@@ -8,7 +8,7 @@ from services import review_service
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
 
-@router.get("/game/{game_id}", response_model=list[ReviewResponse])
+@router.get("/game/{game_id}")
 async def get_reviews_by_game(game_id: int, db: AsyncSession = Depends(get_db)):
     """Все отзывы на игру — доступно всем"""
     return await review_service.get_reviews_by_game(db, game_id)

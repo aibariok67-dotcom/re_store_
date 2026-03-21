@@ -38,5 +38,6 @@ class ReviewResponse(BaseModel):
     price: float | None
     image_url: str | None
     created_at: datetime
+    username: str | None = None
 
     model_config = {"from_attributes": True}

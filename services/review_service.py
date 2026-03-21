@@ -4,12 +4,32 @@ from models.review import Review
 from schemas.review import ReviewCreate, ReviewCreateAdmin
 
 
-async def get_reviews_by_game(db: AsyncSession, game_id: int) -> list[Review]:
-    """Все отзывы на конкретную игру"""
+async def get_reviews_by_game(db: AsyncSession, game_id: int) -> list:
+    """Все отзывы на конкретную игру с данными юзера"""
+    from models.user import User
     result = await db.execute(
-        select(Review).where(Review.game_id == game_id)
+        select(Review, User.username)
+        .join(User, User.id == Review.user_id)
+        .where(Review.game_id == game_id)
     )
-    return result.scalars().all()
+    rows = result.all()
+    
+    reviews = []
+    for review, username in rows:
+        review_dict = {
+            "id": review.id,
+            "user_id": review.user_id,
+            "username": username,
+            "game_id": review.game_id,
+            "rating": review.rating,
+            "text": review.text,
+            "is_paid": review.is_paid,
+            "price": review.price,
+            "image_url": review.image_url,
+            "created_at": review.created_at,
+        }
+        reviews.append(review_dict)
+    return reviews
 
 
 async def get_review(db: AsyncSession, review_id: int) -> Review | None:

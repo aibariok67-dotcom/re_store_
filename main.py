@@ -1,9 +1,18 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from routers import favorites, games, categories, platforms, auth, reviews, uploads, admin
+from fastapi.middleware.cors import CORSMiddleware
+from routers import games, categories, platforms, auth, reviews, uploads, admin, favorites
 
 app = FastAPI(title="RE Store", version="0.2")
 
+# Разрешаем запросы с фронтенда
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

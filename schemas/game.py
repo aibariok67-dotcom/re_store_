@@ -14,6 +14,7 @@ class GameBase(BaseModel):
     release_date: Optional[date] = None
     nominations: Optional[str] = None
     rating: Optional[float] = Field(default=None, ge=0, le=10, description="Рейтинг от 0 до 10")
+    image_url: Optional[str] = None
 
     @field_validator("title")
     @classmethod
@@ -42,6 +43,7 @@ class GamePatch(BaseModel):
     release_date: Optional[date] = None
     nominations: Optional[str] = None
     rating: Optional[float] = Field(default=None, ge=0, le=10)
+    image_url: Optional[str] = None
     category_ids: Optional[List[int]] = None
     platform_ids: Optional[List[int]] = None
 

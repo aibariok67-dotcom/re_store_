@@ -15,6 +15,7 @@ class Review(Base):
     image_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
     __table_args__ = (
         UniqueConstraint("user_id", "game_id", name="unique_user_game_review"),
     )
