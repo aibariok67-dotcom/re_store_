@@ -7,7 +7,6 @@ from .platform import PlatformResponse
 
 class GameBase(BaseModel):
     title: str
-    price: float = Field(gt=0, description="Цена должна быть больше 0")
     description: Optional[str] = None
     publisher: Optional[str] = None
     developer: Optional[str] = None
@@ -36,7 +35,6 @@ class GameUpdate(GameBase):
 
 class GamePatch(BaseModel):
     title: Optional[str] = Field(default=None, min_length=1)
-    price: Optional[float] = Field(default=None, gt=0)
     description: Optional[str] = None
     publisher: Optional[str] = None
     developer: Optional[str] = None

@@ -15,7 +15,7 @@ def parse_date(value: str, is_end: bool = False) -> date:
     return date.fromisoformat(value)  # передали полную дату 2012-01-01
 
 async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
-                    search=None, min_price=None, max_price=None, min_rating=None,
+                    search=None, min_rating=None,
                     developer=None, publisher=None, release_date_from=None, release_date_to=None, page=1, limit=10, sort_by="id", order="asc"):
     category_ids = category_ids or []
     platform_ids = platform_ids or []
@@ -28,10 +28,6 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
         query = query.join(Game.platforms).where(Platform.id.in_(platform_ids))
     if search:
         query = query.where(Game.title.ilike(f"%{search}%"))
-    if min_price is not None:
-        query = query.where(Game.price >= min_price)
-    if max_price is not None:
-        query = query.where(Game.price <= max_price)
     if min_rating is not None:
         query = query.where(Game.rating >= min_rating)
     if developer:
@@ -46,7 +42,6 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
     sort_fields = {
         "id": Game.id,
         "title": Game.title,
-        "price": Game.price,
         "rating": Game.rating,
         "release_date": Game.release_date,
     }

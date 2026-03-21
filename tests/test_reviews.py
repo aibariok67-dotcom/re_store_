@@ -7,7 +7,7 @@ class TestGetReviews:
         # Создаём игру и отзыв
         headers = {"Authorization": f"Bearer {admin_token}"}
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers=headers
         )
         game_id = game.json()["id"]
@@ -43,7 +43,7 @@ class TestCreateUserReview:
     async def test_create_review_success(self, client, admin_token, user_token):
         # Создаём игру как админ
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -63,7 +63,7 @@ class TestCreateUserReview:
     async def test_create_review_duplicate(self, client, admin_token, user_token):
         # Нельзя написать два отзыва на одну игру
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -84,7 +84,7 @@ class TestCreateUserReview:
     @pytest.mark.asyncio
     async def test_create_review_without_token(self, client, admin_token):
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -97,7 +97,7 @@ class TestCreateUserReview:
     @pytest.mark.asyncio
     async def test_create_review_invalid_rating(self, client, admin_token, user_token):
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -113,7 +113,7 @@ class TestCreateAdminReview:
     @pytest.mark.asyncio
     async def test_create_paid_review(self, client, admin_token):
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -148,7 +148,7 @@ class TestDeleteReview:
     async def test_delete_own_review(self, client, admin_token, user_token):
         # Юзер удаляет свой отзыв
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -168,7 +168,7 @@ class TestDeleteReview:
     async def test_delete_other_user_review(self, client, admin_token, user_token):
         # Юзер не может удалить чужой отзыв
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]
@@ -188,7 +188,7 @@ class TestDeleteReview:
     async def test_admin_delete_any_review(self, client, admin_token, user_token):
         # Админ может удалить любой отзыв
         game = await client.post("/games/",
-            json={"title": "Witcher 3", "price": 29.99},
+            json={"title": "Witcher 3"},
             headers={"Authorization": f"Bearer {admin_token}"}
         )
         game_id = game.json()["id"]

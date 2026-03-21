@@ -1,12 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
-from services import game_service
-from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate
-
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from core.database import get_db
 from core.dependencies import get_current_admin
 from services import game_service
 from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate
@@ -19,8 +13,6 @@ async def get_games(
     category_ids: list[int] = Query(default=[]),
     platform_ids: list[int] = Query(default=[]),
     search: str = Query(default=None),
-    min_price: float = Query(default=None),
-    max_price: float = Query(default=None),
     min_rating: float = Query(default=None),
     developer: str = Query(default=None),
     publisher: str = Query(default=None),
@@ -34,8 +26,8 @@ async def get_games(
 ):
     return await game_service.get_games(
         db, category_ids, platform_ids, search,
-        min_price, max_price, min_rating,
-        developer, publisher, release_date_from, release_date_to,
+        min_rating, developer, publisher,
+        release_date_from, release_date_to,
         page, limit, sort_by, order
     )
 
@@ -49,7 +41,7 @@ async def get_game(game_id: int, db: AsyncSession = Depends(get_db)):
 async def create_game(
     game: GameCreate,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)  # ← защита
+    current_user=Depends(get_current_admin)
 ):
     return await game_service.create_game(db, game)
 
@@ -59,7 +51,7 @@ async def update_game(
     game_id: int,
     game: GameUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)  # ← защита
+    current_user=Depends(get_current_admin)
 ):
     return await game_service.update_game(db, game_id, game)
 
@@ -69,7 +61,7 @@ async def patch_game(
     game_id: int,
     game: GamePatch,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)  # ← защита
+    current_user=Depends(get_current_admin)
 ):
     return await game_service.patch_game(db, game_id, game)
 
@@ -78,6 +70,6 @@ async def patch_game(
 async def delete_game(
     game_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)  # ← защита
+    current_user=Depends(get_current_admin)
 ):
     return await game_service.delete_game(db, game_id)

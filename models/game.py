@@ -10,7 +10,6 @@ class Game(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
-    price: Mapped[float] = mapped_column(Float, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
     publisher: Mapped[str] = mapped_column(String, nullable=True)
     developer: Mapped[str] = mapped_column(String, nullable=True)
@@ -24,7 +23,6 @@ class Game(Base):
         back_populates="games",
         lazy="selectin"
     )
-
     platforms = relationship(
         "Platform",
         secondary=game_platforms,
