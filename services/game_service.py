@@ -23,9 +23,11 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
     query = select(Game).distinct()
 
     if category_ids:
-        query = query.join(Game.categories).where(Category.id.in_(category_ids))
+        for cat_id in category_ids:
+            query = query.filter(Game.categories.any(Category.id == cat_id))
     if platform_ids:
-        query = query.join(Game.platforms).where(Platform.id.in_(platform_ids))
+        for plat_id in platform_ids:
+            query = query.filter(Game.platforms.any(Platform.id == plat_id))
     if search:
         query = query.where(Game.title.ilike(f"%{search}%"))
     if min_rating is not None:
