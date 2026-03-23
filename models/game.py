@@ -18,6 +18,7 @@ class Game(Base):
     nominations: Mapped[str] = mapped_column(String, nullable=True)
     rating: Mapped[float] = mapped_column(Float, nullable=True)
     image_url: Mapped[str] = mapped_column(String, nullable=True)
+    aliases: Mapped[str] = mapped_column(String, nullable=True)
     categories = relationship(
         "Category",
         secondary=game_categories,

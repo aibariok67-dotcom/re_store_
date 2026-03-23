@@ -1,5 +1,7 @@
+from re import search
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from fastapi import HTTPException
 from models.game import Game
 from models.category import Category
@@ -29,7 +31,12 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
         for plat_id in platform_ids:
             query = query.filter(Game.platforms.any(Platform.id == plat_id))
     if search:
-        query = query.where(Game.title.ilike(f"%{search}%"))
+        query = query.where(
+            or_(
+                Game.title.ilike(f"%{search}%"),
+                Game.aliases.ilike(f"%{search}%")
+            )
+        )
     if min_rating is not None:
         query = query.where(Game.rating >= min_rating)
     if developer:

@@ -7,10 +7,11 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, nullable=False, index=True)
-    username = Column(String, nullable=False)
+    username = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     is_verified = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
-    is_banned = Column(Boolean, default=False)          # ← забанен навсегда
-    banned_until = Column(DateTime(timezone=True), nullable=True)  # ← забанен до даты
+    is_banned = Column(Boolean, default=False)        
+    banned_until = Column(DateTime(timezone=True), nullable=True)  
+    avatar_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

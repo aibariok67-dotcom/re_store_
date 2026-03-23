@@ -8,18 +8,19 @@ async def get_reviews_by_game(db: AsyncSession, game_id: int) -> list:
     """Все отзывы на конкретную игру с данными юзера"""
     from models.user import User
     result = await db.execute(
-        select(Review, User.username)
+        select(Review, User.username, User.avatar_url)
         .join(User, User.id == Review.user_id)
         .where(Review.game_id == game_id)
     )
     rows = result.all()
     
     reviews = []
-    for review, username in rows:
+    for review, username, avatar_url in rows:
         review_dict = {
             "id": review.id,
             "user_id": review.user_id,
             "username": username,
+            "avatar_url": avatar_url, 
             "game_id": review.game_id,
             "rating": review.rating,
             "text": review.text,
@@ -116,3 +117,46 @@ async def delete_review(
     await db.delete(review)
     await db.commit()
     return review
+
+async def get_reviews_by_user(db: AsyncSession, user_id: int) -> list:
+    """Все отзывы конкретного юзера"""
+    result = await db.execute(
+        select(Review).where(Review.user_id == user_id)
+    )
+    reviews = result.scalars().all()
+    review_list = []
+    for review in reviews:
+        review_list.append({
+            "id": review.id,
+            "user_id": review.user_id,
+            "game_id": review.game_id,
+            "rating": review.rating,
+            "text": review.text,
+            "is_paid": review.is_paid,
+            "price": review.price,
+            "image_url": review.image_url,
+            "created_at": review.created_at,
+        })
+    return review_list
+
+
+async def get_my_reviews(db: AsyncSession, user_id: int) -> list:
+    """Мои отзывы"""
+    result = await db.execute(
+        select(Review).where(Review.user_id == user_id)
+    )
+    reviews = result.scalars().all()
+    review_list = []
+    for review in reviews:
+        review_list.append({
+            "id": review.id,
+            "user_id": review.user_id,
+            "game_id": review.game_id,
+            "rating": review.rating,
+            "text": review.text,
+            "is_paid": review.is_paid,
+            "price": review.price,
+            "image_url": review.image_url,
+            "created_at": review.created_at,
+        })
+    return review_list
