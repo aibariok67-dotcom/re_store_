@@ -4,9 +4,10 @@ from core.database import get_db
 from core.dependencies import get_current_admin
 from services import game_service
 from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate
+from core.logging_config import get_logger
 
 router = APIRouter(prefix="/games", tags=["Games"])
-
+logger = get_logger(__name__)
 
 @router.get("/", response_model=list[GameResponse])
 async def get_games(
@@ -44,6 +45,9 @@ async def create_game(
     current_user=Depends(get_current_admin)
 ):
     return await game_service.create_game(db, game)
+    logger.info(f"Игра создана: {game.title} by={current_user.username}")
+
+
 
 
 @router.put("/{game_id}", response_model=GameResponse)
@@ -73,3 +77,5 @@ async def delete_game(
     current_user=Depends(get_current_admin)
 ):
     return await game_service.delete_game(db, game_id)
+    logger.info(f"Игра удалена: id={game_id} by={current_user.username}")
+    

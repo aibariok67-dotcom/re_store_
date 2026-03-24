@@ -31,6 +31,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class UserUpdate(BaseModel):
+class UpdateMeRequest(BaseModel):
     username: str | None = None
+    password: str | None = None
     avatar_url: str | None = None

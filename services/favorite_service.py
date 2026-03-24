@@ -2,24 +2,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.favorite import Favorite
 from models.game import Game
+from core.exceptions import GameNotFound, AlreadyFavorited, NotFound
 
-
-async def add_favorite(db: AsyncSession, user_id: int, game_id: int) -> Favorite:
-    """Добавить игру в избранное"""
-    # Проверяем что игра существует
+async def add_favorite(db, user_id, game_id):
     result = await db.execute(select(Game).where(Game.id == game_id))
     if result.scalar_one_or_none() is None:
-        raise ValueError("Игра не найдена")
+        raise GameNotFound()
 
-    # Проверяем что ещё не в избранном
     result = await db.execute(
-        select(Favorite).where(
-            Favorite.user_id == user_id,
-            Favorite.game_id == game_id
-        )
+        select(Favorite).where(Favorite.user_id == user_id, Favorite.game_id == game_id)
     )
     if result.scalar_one_or_none():
-        raise ValueError("Игра уже в избранном")
+        raise AlreadyFavorited()
 
     favorite = Favorite(user_id=user_id, game_id=game_id)
     db.add(favorite)
@@ -27,20 +21,13 @@ async def add_favorite(db: AsyncSession, user_id: int, game_id: int) -> Favorite
     await db.refresh(favorite)
     return favorite
 
-
-async def remove_favorite(db: AsyncSession, user_id: int, game_id: int) -> Favorite:
-    """Убрать игру из избранного"""
+async def remove_favorite(db, user_id, game_id):
     result = await db.execute(
-        select(Favorite).where(
-            Favorite.user_id == user_id,
-            Favorite.game_id == game_id
-        )
+        select(Favorite).where(Favorite.user_id == user_id, Favorite.game_id == game_id)
     )
     favorite = result.scalar_one_or_none()
-
     if favorite is None:
-        raise ValueError("Игра не в избранном")
-
+        raise NotFound("Запись избранного")
     await db.delete(favorite)
     await db.commit()
     return favorite
