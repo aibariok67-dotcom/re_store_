@@ -1,7 +1,6 @@
 from pydantic import BaseModel, field_validator
 from datetime import datetime
 
-
 class ReviewCreate(BaseModel):
     game_id: int
     rating: float
@@ -13,6 +12,16 @@ class ReviewCreate(BaseModel):
     def validate_rating(cls, v):
         if v < 1 or v > 10:
             raise ValueError("Рейтинг должен быть от 1 до 10")
+        return v
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, v):
+        v = v.strip()
+        if len(v) < 10:
+            raise ValueError("Отзыв слишком короткий — минимум 10 символов")
+        if len(v) > 2000:
+            raise ValueError("Отзыв слишком длинный — максимум 2000 символов")
         return v
 
 
