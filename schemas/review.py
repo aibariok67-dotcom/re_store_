@@ -24,29 +24,27 @@ class ReviewCreate(BaseModel):
             raise ValueError("Отзыв слишком длинный — максимум 2000 символов")
         return v
 
-
-class ReviewCreateAdmin(ReviewCreate):
-    is_paid: bool = False
-    price: float | None = None
-
-    @field_validator("price")
-    @classmethod
-    def validate_price(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Цена должна быть больше 0")
-        return v
-
-
 class ReviewResponse(BaseModel):
     id: int
     user_id: int
     game_id: int
     rating: float
     text: str
-    is_paid: bool
-    price: float | None
     image_url: str | None
     created_at: datetime
     username: str | None = None
+
+    # Чтобы фронт мог показывать бейдж “Премиум” у автора.
+    is_premium: bool = False
+    @field_validator("is_premium", mode="before")
+    @classmethod
+    def default_is_premium(cls, v):
+        return False if v is None else v
+
+    premium_theme: str | None = None
+    @field_validator("premium_theme", mode="before")
+    @classmethod
+    def default_premium_theme(cls, v):
+        return None if v is None else v
 
     model_config = {"from_attributes": True}

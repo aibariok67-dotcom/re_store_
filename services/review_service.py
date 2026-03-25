@@ -1,23 +1,21 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.review import Review
-from schemas.review import ReviewCreate, ReviewCreateAdmin
+from schemas.review import ReviewCreate
 from core.exceptions import ReviewNotFound, AlreadyReviewed, PermissionDenied
 
-
 async def get_reviews_by_game(db: AsyncSession, game_id: int) -> list:
-    """Все отзывы на конкретную игру с данными юзера"""
     from models.user import User
     result = await db.execute(
-        select(Review, User.username, User.avatar_url)
+        select(Review, User.username, User.avatar_url, User.is_premium, User.premium_theme)
         .join(User, User.id == Review.user_id)
         .where(Review.game_id == game_id)
     )
     rows = result.all()
     
     reviews = []
-    for review, username, avatar_url in rows:
-        review_dict = {
+    for review, username, avatar_url, is_premium, premium_theme in rows:
+        reviews.append({
             "id": review.id,
             "user_id": review.user_id,
             "username": username,
@@ -25,17 +23,14 @@ async def get_reviews_by_game(db: AsyncSession, game_id: int) -> list:
             "game_id": review.game_id,
             "rating": review.rating,
             "text": review.text,
-            "is_paid": review.is_paid,
-            "price": review.price,
             "image_url": review.image_url,
             "created_at": review.created_at,
-        }
-        reviews.append(review_dict)
+            "is_premium": is_premium,
+            "premium_theme": premium_theme,
+        })
     return reviews
 
-
 async def get_review(db: AsyncSession, review_id: int) -> Review | None:
-    """Один отзыв по id"""
     result = await db.execute(select(Review).where(Review.id == review_id))
     return result.scalar_one_or_none()
 
@@ -46,56 +41,21 @@ async def check_existing_review(db: AsyncSession, user_id: int, game_id: int):
     if existing.scalar_one_or_none():
         raise AlreadyReviewed()
 
-
-async def create_user_review(
-    db: AsyncSession,
-    data: ReviewCreate,
-    user_id: int
-) -> Review:
-    """Создать бесплатный отзыв — для обычного юзера"""
+async def create_review(db: AsyncSession, data: ReviewCreate, user_id: int) -> Review:
     await check_existing_review(db, user_id, data.game_id)
-
     review = Review(
         user_id=user_id,
         game_id=data.game_id,
         rating=data.rating,
         text=data.text,
-        image_url=data.image_url,
-        is_paid=False,
-        price=None,
+        image_url=data.image_url
     )
-
     db.add(review)
     await db.commit()
     await db.refresh(review)
     return review
 
-
-async def create_admin_review(
-    db: AsyncSession,
-    data: ReviewCreateAdmin,
-    user_id: int
-) -> Review:
-    """Создать платный отзыв — только для админа"""
-    await check_existing_review(db, user_id, data.game_id)
-
-    review = Review(
-        user_id=user_id,
-        game_id=data.game_id,
-        rating=data.rating,
-        text=data.text,
-        image_url=data.image_url,
-        is_paid=data.is_paid,
-        price=data.price,
-    )
-
-    db.add(review)
-    await db.commit()
-    await db.refresh(review)
-    return review
-
-
-async def delete_review(db, review_id, user_id, is_admin):
+async def delete_review(db: AsyncSession, review_id: int, user_id: int, is_admin: bool):
     review = await get_review(db, review_id)
     if review is None:
         raise ReviewNotFound()
@@ -106,44 +66,14 @@ async def delete_review(db, review_id, user_id, is_admin):
     return review
 
 async def get_reviews_by_user(db: AsyncSession, user_id: int) -> list:
-    """Все отзывы конкретного юзера"""
-    result = await db.execute(
-        select(Review).where(Review.user_id == user_id)
-    )
+    result = await db.execute(select(Review).where(Review.user_id == user_id))
     reviews = result.scalars().all()
-    review_list = []
-    for review in reviews:
-        review_list.append({
-            "id": review.id,
-            "user_id": review.user_id,
-            "game_id": review.game_id,
-            "rating": review.rating,
-            "text": review.text,
-            "is_paid": review.is_paid,
-            "price": review.price,
-            "image_url": review.image_url,
-            "created_at": review.created_at,
-        })
-    return review_list
-
-
-async def get_my_reviews(db: AsyncSession, user_id: int) -> list:
-    """Мои отзывы"""
-    result = await db.execute(
-        select(Review).where(Review.user_id == user_id)
-    )
-    reviews = result.scalars().all()
-    review_list = []
-    for review in reviews:
-        review_list.append({
-            "id": review.id,
-            "user_id": review.user_id,
-            "game_id": review.game_id,
-            "rating": review.rating,
-            "text": review.text,
-            "is_paid": review.is_paid,
-            "price": review.price,
-            "image_url": review.image_url,
-            "created_at": review.created_at,
-        })
-    return review_list
+    return [{
+        "id": r.id,
+        "user_id": r.user_id,
+        "game_id": r.game_id,
+        "rating": r.rating,
+        "text": r.text,
+        "image_url": r.image_url,
+        "created_at": r.created_at
+    } for r in reviews]

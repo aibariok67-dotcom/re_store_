@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from core.database import get_db
 from core.dependencies import get_current_user
-from core.exceptions import BadRequest, UserNotFound
+from core.exceptions import BadRequest, UserNotFound, InvalidCredentials, UserBanned
 from core.logging_config import get_logger
 from core.limiter import limiter
 from schemas.user import UserCreate, UserResponse, UserLogin, Token, UpdateMeRequest
@@ -33,8 +33,16 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
         logger.info(f"Вход: {data.email}")
         return {"access_token": token, "token_type": "bearer"}
     except ValueError as e:
-        logger.warning(f"Неудачный вход: {data.email}")
-        raise BadRequest(str(e))
+        # login_user отдаёт разные ValueError-месседжи; конвертим их в нормальные HTTP-коды.
+        msg = str(e)
+        logger.warning(f"Неудачный вход: {data.email} ({msg})")
+
+        if msg == "Неверный email или пароль":
+            raise InvalidCredentials()
+        if msg.startswith("Ваш аккаунт заблокирован"):
+            raise UserBanned()
+
+        raise BadRequest(msg)
 
 
 @router.get("/me", response_model=UserResponse)

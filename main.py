@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 
 from core.logging_config import setup_logging, get_logger
 from core.exceptions import AppException
-from routers import games, categories, platforms, auth, reviews, uploads, admin, favorites
+from routers import games, categories, platforms, auth, reviews, uploads, admin, favorites, premium
 
 
 setup_logging()
@@ -60,6 +60,7 @@ app.include_router(reviews.router)
 app.include_router(uploads.router)
 app.include_router(admin.router)
 app.include_router(favorites.router)
+app.include_router(premium.router)
 
 
 @app.on_event("startup")

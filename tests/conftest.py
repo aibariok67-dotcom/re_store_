@@ -1,3 +1,7 @@
+import os
+
+os.environ.setdefault("DISABLE_RATE_LIMITS", "1")
+
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
@@ -6,7 +10,9 @@ from sqlalchemy.orm import sessionmaker
 from core.database import Base, get_db
 from main import app
 
-TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/re_store_test"
+# По умолчанию тесты запускаются на Postgres (тестовая БД).
+# Если хочешь другую БД — задай `TEST_DATABASE_URL`.
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/re_store_test")
 
 
 @pytest_asyncio.fixture

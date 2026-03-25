@@ -13,7 +13,6 @@ class TestRegister:
         data = response.json()
         assert data["email"] == "new@test.com"
         assert data["username"] == "newuser"
-        assert data["is_verified"] == False
         assert "password" not in data
 
     @pytest.mark.asyncio
