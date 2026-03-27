@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16
+    container_name: re_store_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: re_store
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d re_store"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - re_store_net
+
+  backend:
+    build: .
+    container_name: re_store_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - re_store_net
+
+  frontend:
+    build:
+      context: ../re-store-frontend
+      args:
+        VITE_API_URL: http://localhost:8000
+    container_name: re_store_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - re_store_net
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  re_store_net:
+    driver: bridge
