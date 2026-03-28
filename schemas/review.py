@@ -28,6 +28,7 @@ class ReviewResponse(BaseModel):
     id: int
     user_id: int
     game_id: int
+    game_title: str | None = None
     rating: float
     text: str
     image_url: str | None

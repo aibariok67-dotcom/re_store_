@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Star, ArrowLeft, Shield, Crown, Calendar } from 'lucide-react'
+import { Star, ArrowLeft, Shield, Crown, Calendar, Gamepad2, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { getUserById } from '../api/auth'
@@ -136,12 +136,20 @@ export default function UserProfilePage() {
         <div className="max-w-4xl mx-auto space-y-3">
           {reviews.map((r) => (
             <div key={r.id} className="card p-4">
-              <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center justify-between gap-3 mb-2.5">
                 <Link
                   to={`/games/${r.game_id}`}
-                  className="text-sm font-semibold text-primary-light hover:underline"
+                  className="group inline-flex min-w-0 max-w-[min(100%,20rem)] touch-manipulation items-center gap-2 rounded-xl border border-primary/30 bg-primary/[0.08] px-3 py-2 text-sm font-bold text-white shadow-sm shadow-black/20 transition-colors hover:border-primary/50 hover:bg-primary/15 sm:max-w-md"
                 >
-                  Игра #{r.game_id}
+                  <Gamepad2 size={16} strokeWidth={2} className="shrink-0 text-primary-light" />
+                  <span className="min-w-0 truncate">
+                    {r.game_title?.trim() || `Игра #${r.game_id}`}
+                  </span>
+                  <ChevronRight
+                    size={16}
+                    strokeWidth={2}
+                    className="shrink-0 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-light"
+                  />
                 </Link>
                 <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold">
                   <Star size={12} className="fill-yellow-400" />

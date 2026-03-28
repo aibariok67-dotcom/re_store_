@@ -61,7 +61,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
       >
         <input
           className="input flex-1"
-          placeholder={`Новый ${title.toLowerCase()}...`}
+          placeholder={`Новые ${title.toLowerCase()}...`}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />

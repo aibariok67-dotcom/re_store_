@@ -147,7 +147,7 @@ export default function CatalogPage() {
           <MessagesSquare size={18} strokeWidth={2} />
         </div>
         <p className="text-center sm:text-left text-xs sm:text-[15px] font-semibold text-gray-200 leading-relaxed">
-          Отзывы игроков и средняя оценка на сайте — главный ориентир, что поиграть дальше. Рядом с карточками также показан рейтинг IMDb, если он указан в каталоге.
+          Отзывы игроков и средняя оценка на сайте — главный ориентир, что поиграть дальше.
         </p>
       </div>
 

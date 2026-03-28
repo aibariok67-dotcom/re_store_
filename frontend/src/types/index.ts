@@ -79,6 +79,8 @@ export interface Review {
   username: string
   avatar_url?: string
   game_id: number
+  /** Подставляется в списках отзывов пользователя (мой профиль / профиль другого юзера) */
+  game_title?: string | null
   rating: number
   text: string
   image_url?: string

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Edit2, Star, Heart, Trash2, Eye, EyeOff,
-  Calendar, Crown, Shield, Camera,
+  Calendar, Crown, Shield, Camera, Gamepad2, ChevronRight,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
@@ -22,7 +22,7 @@ import { cn } from '../utils/cn'
 
 function StatCard({ value, label }: { value: number; label: string }) {
   return (
-    <div className="text-center px-4">
+    <div className="text-center px-2 sm:px-4">
       <div className="text-2xl font-extrabold text-white">{value}</div>
       <div className="text-xs text-gray-500 mt-0.5 font-medium">{label}</div>
     </div>
@@ -158,15 +158,15 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Stats + actions */}
-            <div className="flex items-center gap-4 sm:pb-1">
+            {/* Stats + actions: на телефоне кнопка ближе к счётчикам, без уезда вправо */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 sm:pb-1 justify-start w-full sm:w-auto">
               <StatCard value={favorites.length} label="Избранное" />
-              <div className="w-px h-8 bg-border" />
+              <div className="w-px h-8 bg-border shrink-0" />
               <StatCard value={reviews.length} label="Отзывы" />
               <button
                 type="button"
                 onClick={() => setEditOpen(true)}
-                className="btn-secondary ml-2 shrink-0"
+                className="btn-secondary shrink-0 w-fit touch-manipulation"
               >
                 <Edit2 size={18} strokeWidth={2} />
                 Изменить
@@ -253,11 +253,19 @@ export default function ProfilePage() {
                     <div className="flex-1 min-w-0">
                       <Link
                         to={`/games/${r.game_id}`}
-                        className="text-sm font-semibold text-primary-light hover:underline"
+                        className="group inline-flex max-w-full touch-manipulation items-center gap-2 rounded-xl border border-primary/30 bg-primary/[0.08] px-3 py-2 text-sm font-bold text-white shadow-sm shadow-black/20 transition-colors hover:border-primary/50 hover:bg-primary/15"
                       >
-                        Игра #{r.game_id}
+                        <Gamepad2 size={16} strokeWidth={2} className="shrink-0 text-primary-light" />
+                        <span className="min-w-0 truncate">
+                          {r.game_title?.trim() || `Игра #${r.game_id}`}
+                        </span>
+                        <ChevronRight
+                          size={16}
+                          strokeWidth={2}
+                          className="shrink-0 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-light"
+                        />
                       </Link>
-                      <div className="flex items-center gap-1 mt-1">
+                      <div className="flex items-center gap-1 mt-2">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}

@@ -66,14 +66,25 @@ async def delete_review(db: AsyncSession, review_id: int, user_id: int, is_admin
     return review
 
 async def get_reviews_by_user(db: AsyncSession, user_id: int) -> list:
-    result = await db.execute(select(Review).where(Review.user_id == user_id))
-    reviews = result.scalars().all()
-    return [{
-        "id": r.id,
-        "user_id": r.user_id,
-        "game_id": r.game_id,
-        "rating": r.rating,
-        "text": r.text,
-        "image_url": r.image_url,
-        "created_at": r.created_at
-    } for r in reviews]
+    from models.game import Game
+
+    result = await db.execute(
+        select(Review, Game.title)
+        .join(Game, Game.id == Review.game_id)
+        .where(Review.user_id == user_id)
+        .order_by(Review.created_at.desc())
+    )
+    rows = result.all()
+    return [
+        {
+            "id": r.id,
+            "user_id": r.user_id,
+            "game_id": r.game_id,
+            "game_title": title,
+            "rating": r.rating,
+            "text": r.text,
+            "image_url": r.image_url,
+            "created_at": r.created_at,
+        }
+        for r, title in rows
+    ]
