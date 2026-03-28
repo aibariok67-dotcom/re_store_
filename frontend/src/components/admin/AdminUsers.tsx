@@ -1,21 +1,24 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Search, X, Shield, Ban, UserCheck, Clock } from 'lucide-react'
+import { Search, X, Shield, Ban, UserCheck, Clock, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import { getAdminUsers, banUser, banUserTemp, unbanUser } from '../../api/admin'
+import { getAdminUsers, banUser, banUserTemp, unbanUser, deleteUser } from '../../api/admin'
 import { UserAvatar } from '../UserAvatar'
 import { Modal } from '../Modal'
 import { useDebounce } from '../../hooks/useDebounce'
+import { useAuth } from '../../hooks/useAuth'
 import type { User } from '../../types'
 import { cn } from '../../utils/cn'
 
 export function AdminUsers() {
   const qc = useQueryClient()
+  const { user: currentUser } = useAuth()
   const [search, setSearch] = useState('')
   const [banModal, setBanModal] = useState<{ user: User; type: 'perm' | 'temp' } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null)
   const [tempDate, setTempDate] = useState('')
   const [tempTime, setTempTime] = useState('23:59')
   const debouncedSearch = useDebounce(search, 300)
@@ -53,6 +56,19 @@ export function AdminUsers() {
       qc.invalidateQueries({ queryKey: ['admin-users'] })
     },
     onError: () => toast.error('Ошибка'),
+  })
+
+  const deleteMut = useMutation({
+    mutationFn: (userId: number) => deleteUser(userId),
+    onSuccess: () => {
+      toast.success('Пользователь удалён')
+      qc.invalidateQueries({ queryKey: ['admin-users'] })
+      setDeleteTarget(null)
+    },
+    onError: (err: unknown) => {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      toast.error(typeof detail === 'string' ? detail : 'Ошибка удаления')
+    },
   })
 
   const isBanned = (user: User) => {
@@ -194,6 +210,18 @@ export function AdminUsers() {
                           </button>
                         </>
                       )}
+                      {currentUser?.id !== u.id && (
+                        <button
+                          type="button"
+                          className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 border-red-600/40"
+                          title="Удалить пользователя и все связанные данные"
+                          onClick={() => setDeleteTarget(u)}
+                          disabled={deleteMut.isPending}
+                        >
+                          <Trash2 size={16} strokeWidth={2} />
+                          Удалить
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -266,6 +294,35 @@ export function AdminUsers() {
                 }}
               >
                 {banModal.type === 'perm' ? 'Забанить навсегда' : 'Применить бан'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Удалить пользователя?"
+        size="sm"
+      >
+        {deleteTarget && (
+          <div className="space-y-4">
+            <p className="text-gray-300 text-sm leading-relaxed">
+              Будет безвозвратно удалён <strong className="text-white">{deleteTarget.username}</strong>
+              {' '}(отзывы и избранное тоже). Это нельзя отменить.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button type="button" className="btn-secondary" onClick={() => setDeleteTarget(null)}>
+                Отмена
+              </button>
+              <button
+                type="button"
+                className="btn-danger"
+                disabled={deleteMut.isPending}
+                onClick={() => deleteMut.mutate(deleteTarget.id)}
+              >
+                {deleteMut.isPending ? 'Удаляю…' : 'Удалить навсегда'}
               </button>
             </div>
           </div>

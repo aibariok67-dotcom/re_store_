@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from models.user import User
+from models.review import Review
+from models.favorite import Favorite
 from schemas.user import UserCreate
 from core.security import hash_password, verify_password, create_access_token
 
@@ -77,3 +79,12 @@ async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
     await db.commit()
     await db.refresh(user)
     return user
+
+
+async def delete_user_cascade(db: AsyncSession, user: User) -> None:
+    """Удалить пользователя вместе с отзывами и избранным (обход FK)."""
+    uid = user.id
+    await db.execute(delete(Review).where(Review.user_id == uid))
+    await db.execute(delete(Favorite).where(Favorite.user_id == uid))
+    await db.delete(user)
+    await db.commit()

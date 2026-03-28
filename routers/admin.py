@@ -9,6 +9,7 @@ from core.exceptions import UserNotFound, BadRequest, PermissionDenied
 from core.logging_config import get_logger
 from models.user import User
 from schemas.user import UserResponse
+from services.user_service import delete_user_cascade
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 logger = get_logger(__name__)
@@ -88,3 +89,25 @@ async def unban_user(
 
     logger.info(f"Разбан: {user.username} (ID={user_id}) — админ {current_user.username}")
     return {"detail": f"Пользователь {user.username} разбанен"}
+
+
+@router.delete("/users/{user_id}")
+async def delete_user_admin(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_admin),
+):
+    if user_id == current_user.id:
+        raise PermissionDenied("Нельзя удалить свою учётную запись")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise UserNotFound()
+    if user.is_admin:
+        raise PermissionDenied("Нельзя удалить администратора")
+
+    username = user.username
+    await delete_user_cascade(db, user)
+    logger.warning(f"Удалён пользователь: {username} (ID={user_id}) — админ {current_user.username}")
+    return {"detail": f"Пользователь {username} удалён вместе с отзывами и избранным"}

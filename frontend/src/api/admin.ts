@@ -21,3 +21,7 @@ export async function banUserTemp(userId: number, bannedUntil: string): Promise<
 export async function unbanUser(userId: number): Promise<void> {
   await client.post(`/admin/users/${userId}/unban`)
 }
+
+export async function deleteUser(userId: number): Promise<void> {
+  await client.delete(`/admin/users/${userId}`)
+}
