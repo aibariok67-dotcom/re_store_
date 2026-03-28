@@ -383,7 +383,7 @@ export default function CatalogPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="card rounded-2xl overflow-hidden !p-0">
-              <div className="aspect-[3/4] bg-surface-2 animate-pulse" />
+              <div className="aspect-[4/5] bg-surface-2 animate-pulse" />
               <div className="p-3.5 space-y-2.5">
                 <div className="h-4 bg-surface-2 rounded w-3/4 animate-pulse" />
                 <div className="h-3 bg-surface-2 rounded w-1/3 animate-pulse" />

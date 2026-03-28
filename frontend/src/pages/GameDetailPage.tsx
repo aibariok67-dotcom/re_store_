@@ -139,10 +139,10 @@ export default function GameDetailPage() {
 
   if (gameLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 animate-pulse">
+      <div className="max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 py-8 animate-pulse">
         <div className="h-5 bg-surface rounded w-24 mb-6" />
-        <div className="flex gap-8">
-          <div className="w-52 aspect-[3/4] bg-surface rounded-xl flex-shrink-0" />
+        <div className="flex gap-8 lg:gap-12">
+          <div className="w-52 lg:w-72 xl:w-80 aspect-[4/5] bg-surface rounded-xl flex-shrink-0" />
           <div className="flex-1 space-y-4">
             <div className="h-8 bg-surface rounded w-2/3" />
             <div className="h-4 bg-surface rounded w-1/3" />
@@ -167,18 +167,18 @@ export default function GameDetailPage() {
   const userHasReview = reviews.some((r) => r.user_id === user?.id)
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+    <div className="max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 min-h-11 px-3 sm:px-4 -ml-1 sm:-ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all text-[15px] font-semibold mb-6 sm:mb-8 touch-manipulation"
+        className="inline-flex items-center gap-2 min-h-11 px-3 sm:px-4 -ml-1 sm:-ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all text-[15px] lg:text-base font-semibold mb-6 sm:mb-8 touch-manipulation"
       >
         <ArrowLeft size={18} strokeWidth={2} />
         Все игры
       </Link>
 
-      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 lg:gap-10 mb-10 sm:mb-12">
-        <div className="w-full max-w-[min(100%,240px)] mx-auto sm:mx-0 sm:max-w-none sm:w-60 flex-shrink-0">
-          <div className="rounded-2xl overflow-hidden card aspect-[3/4] !p-0 border-white/[0.08] shadow-glow-sm">
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 lg:gap-12 xl:gap-14 mb-10 sm:mb-12 lg:mb-14">
+        <div className="w-full max-w-[min(100%,260px)] mx-auto sm:mx-0 sm:max-w-none sm:w-64 lg:w-72 xl:w-80 flex-shrink-0">
+          <div className="rounded-2xl lg:rounded-3xl overflow-hidden card aspect-[4/5] !p-0 border-white/[0.08] shadow-glow-sm">
             {showImage ? (
               <img
                 src={imageUrl}
@@ -203,7 +203,7 @@ export default function GameDetailPage() {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 mb-4">
-            <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight min-w-0 order-1">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-[2.75rem] font-black text-white leading-tight tracking-tight min-w-0 order-1">
               {game.title}
             </h1>
             {isAuthenticated && (
@@ -211,13 +211,13 @@ export default function GameDetailPage() {
                 type="button"
                 onClick={() => toggleFav.mutate()}
                 className={cn(
-                  'flex items-center justify-center gap-2 min-h-11 px-5 rounded-xl border transition-all w-full sm:w-auto sm:flex-shrink-0 text-[15px] font-semibold touch-manipulation order-2',
+                  'flex items-center justify-center gap-2 min-h-11 lg:min-h-12 px-5 lg:px-6 rounded-xl border transition-all w-full sm:w-auto sm:flex-shrink-0 text-[15px] lg:text-base font-semibold touch-manipulation order-2',
                   isFavorite
                     ? 'bg-red-500/15 border-red-500/35 text-red-400'
                     : 'border-white/[0.1] text-gray-300 hover:border-red-500/35 hover:text-red-400 hover:bg-red-500/5'
                 )}
               >
-                <Heart size={18} strokeWidth={2} className={cn(isFavorite && 'fill-red-400')} />
+                <Heart size={18} strokeWidth={2} className={cn('lg:w-5 lg:h-5', isFavorite && 'fill-red-400')} />
                 {isFavorite ? 'В избранном' : 'В избранное'}
               </button>
             )}
@@ -227,23 +227,23 @@ export default function GameDetailPage() {
           {(game.rating != null || game.reviews_rating_avg != null) && (
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-5">
               {game.rating != null && (
-                <div className="flex flex-col gap-1 rounded-xl px-4 py-3 bg-amber-500/10 border border-amber-400/25 min-w-0 sm:min-w-[11rem]">
+                <div className="flex flex-col gap-1 rounded-xl lg:rounded-2xl px-4 py-3 lg:px-5 lg:py-3.5 bg-amber-500/10 border border-amber-400/25 min-w-0 sm:min-w-[11rem]">
                   <div className="flex items-center gap-2.5">
-                    <Star size={18} className="text-amber-400 fill-amber-400 shrink-0" strokeWidth={2} />
-                    <span className="text-xl font-extrabold text-white tabular-nums">{game.rating}</span>
-                    <span className="text-sm text-gray-500 font-medium">/ 10</span>
+                    <Star size={18} className="lg:w-5 lg:h-5 text-amber-400 fill-amber-400 shrink-0" strokeWidth={2} />
+                    <span className="text-xl lg:text-2xl font-extrabold text-white tabular-nums">{game.rating}</span>
+                    <span className="text-sm lg:text-base text-gray-500 font-medium">/ 10</span>
                   </div>
-                  <span className="text-xs text-amber-200/75 font-medium leading-snug">Рейтинг IMDb</span>
+                  <span className="text-xs lg:text-sm text-amber-200/75 font-medium leading-snug">Рейтинг IMDb</span>
                 </div>
               )}
               {game.reviews_rating_avg != null && (
-                <div className="flex flex-col gap-1 rounded-xl px-4 py-3 bg-emerald-500/10 border border-emerald-400/25 min-w-0 sm:min-w-[11rem]">
+                <div className="flex flex-col gap-1 rounded-xl lg:rounded-2xl px-4 py-3 lg:px-5 lg:py-3.5 bg-emerald-500/10 border border-emerald-400/25 min-w-0 sm:min-w-[11rem]">
                   <div className="flex items-center gap-2.5">
-                    <MessagesSquare size={18} className="text-emerald-400 shrink-0" strokeWidth={2} />
-                    <span className="text-xl font-extrabold text-white tabular-nums">{game.reviews_rating_avg}</span>
-                    <span className="text-sm text-gray-500 font-medium">/ 10</span>
+                    <MessagesSquare size={18} className="lg:w-5 lg:h-5 text-emerald-400 shrink-0" strokeWidth={2} />
+                    <span className="text-xl lg:text-2xl font-extrabold text-white tabular-nums">{game.reviews_rating_avg}</span>
+                    <span className="text-sm lg:text-base text-gray-500 font-medium">/ 10</span>
                   </div>
-                  <span className="text-xs text-emerald-200/75 font-medium leading-snug">
+                  <span className="text-xs lg:text-sm text-emerald-200/75 font-medium leading-snug">
                     Средняя оценка на сайте
                     {reviewsCountLabel(reviews.length)}
                   </span>
@@ -269,31 +269,31 @@ export default function GameDetailPage() {
           )}
 
           {/* Meta */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm lg:text-base mb-5">
             {game.developer && (
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Building2 size={14} className="text-gray-600 flex-shrink-0" />
+                <Building2 size={14} className="text-gray-600 flex-shrink-0 lg:w-[18px] lg:h-[18px]" />
                 <span className="text-gray-500 shrink-0">Разработчик</span>
                 <span className="text-white font-medium min-w-0 break-words">{game.developer}</span>
               </div>
             )}
             {game.publisher && (
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Building2 size={14} className="text-gray-600 flex-shrink-0" />
+                <Building2 size={14} className="text-gray-600 flex-shrink-0 lg:w-[18px] lg:h-[18px]" />
                 <span className="text-gray-500 shrink-0">Издатель</span>
                 <span className="text-white font-medium min-w-0 break-words">{game.publisher}</span>
               </div>
             )}
             {game.release_date && (
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Calendar size={14} className="text-gray-600 flex-shrink-0" />
+                <Calendar size={14} className="text-gray-600 flex-shrink-0 lg:w-[18px] lg:h-[18px]" />
                 <span className="text-gray-500 shrink-0">Дата выхода</span>
                 <span className="text-white font-medium tabular-nums">{game.release_date}</span>
               </div>
             )}
             {game.series && (
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <BookOpen size={14} className="text-gray-600 flex-shrink-0" />
+                <BookOpen size={14} className="text-gray-600 flex-shrink-0 lg:w-[18px] lg:h-[18px]" />
                 <span className="text-gray-500 shrink-0">Серия</span>
                 <span className="text-white font-medium min-w-0 break-words">{game.series}</span>
               </div>
@@ -301,30 +301,30 @@ export default function GameDetailPage() {
           </div>
 
           {game.description && (
-            <p className="text-gray-400 text-sm leading-relaxed">{game.description}</p>
+            <p className="text-gray-400 text-sm lg:text-[15px] lg:leading-relaxed leading-relaxed max-w-4xl">{game.description}</p>
           )}
         </div>
       </div>
 
       {/* Reviews section */}
       <div>
-        <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-xl font-extrabold text-white">Отзывы</h2>
-          <span className="text-xs font-semibold text-gray-500 bg-surface-2 px-2.5 py-1 rounded-lg border border-border">
+        <div className="flex items-center gap-3 mb-5 lg:mb-6">
+          <h2 className="text-xl lg:text-2xl font-extrabold text-white">Отзывы</h2>
+          <span className="text-xs lg:text-sm font-semibold text-gray-500 bg-surface-2 px-2.5 py-1 lg:px-3 rounded-lg border border-border">
             {reviews.length}
           </span>
         </div>
 
         {/* Review form */}
         {isAuthenticated && !userHasReview && (
-          <div className="card p-6 sm:p-7 mb-8 border-white/[0.08]">
-            <h3 className="text-base font-bold text-white mb-5">Написать отзыв</h3>
+          <div className="card p-6 sm:p-7 lg:p-8 mb-8 border-white/[0.08]">
+            <h3 className="text-base lg:text-lg font-bold text-white mb-5">Написать отзыв</h3>
             <form
               onSubmit={(e) => { e.preventDefault(); submitReview.mutate() }}
               className="space-y-3"
             >
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Оценка (1-10)</label>
+                <label className="block text-xs lg:text-sm text-gray-400 mb-1.5 font-medium">Оценка (1-10)</label>
                 <input
                   type="number"
                   className="input w-28"
@@ -338,9 +338,9 @@ export default function GameDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Ваш отзыв</label>
+                <label className="block text-xs lg:text-sm text-gray-400 mb-1.5 font-medium">Ваш отзыв</label>
                 <textarea
-                  className="input min-h-24 resize-none"
+                  className="input min-h-24 lg:min-h-32 resize-none"
                   placeholder="Поделитесь впечатлениями..."
                   value={text}
                   onChange={(e) => setText(e.target.value)}
@@ -350,9 +350,9 @@ export default function GameDetailPage() {
 
               {/* Image upload */}
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 text-xs text-gray-500 hover:text-primary-light cursor-pointer transition-colors font-medium">
-                  <ImageIcon size={14} />
-                  Прикрепить картинку
+                <label className="flex items-center gap-2 text-xs lg:text-sm text-gray-500 hover:text-primary-light cursor-pointer transition-colors font-medium">
+                  <ImageIcon size={14} className="lg:w-[18px] lg:h-[18px]" />
+                  Прикрепить картинку (широкий формат 2:1)
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
                 </label>
                 {reviewImageUrl && (
@@ -448,7 +448,7 @@ export default function GameDetailPage() {
           file={cropFile}
           onClose={() => { setCropOpen(false); setCropFile(null) }}
           onDone={handleCropDone}
-          aspect={16 / 9}
+          aspect={2}
         />
       )}
     </div>
@@ -473,7 +473,7 @@ function ReviewCard({
   return (
     <div
       className={cn(
-        'card p-4 flex gap-3.5',
+        'card p-4 lg:p-5 flex gap-3.5 lg:gap-4',
         review.is_premium && `ring-1 ${themeRing}`
       )}
     >
@@ -485,7 +485,7 @@ function ReviewCard({
             is_premium: review.is_premium ?? false,
             premium_theme: review.premium_theme ?? 'indigo',
           }}
-          size={40}
+          size={44}
           className="hover:ring-2 hover:ring-primary/40 transition-all"
         />
       </Link>
@@ -494,7 +494,7 @@ function ReviewCard({
           <div className="flex items-center gap-2">
             <Link
               to={`/users/${review.user_id}`}
-              className="text-sm font-semibold text-white hover:text-primary-light transition-colors"
+              className="text-sm lg:text-[15px] font-semibold text-white hover:text-primary-light transition-colors"
             >
               {review.username}
             </Link>
@@ -518,12 +518,12 @@ function ReviewCard({
             )}
           </div>
         </div>
-        <p className="text-sm text-gray-300 leading-relaxed">{review.text}</p>
+        <p className="text-sm lg:text-[15px] text-gray-300 leading-relaxed">{review.text}</p>
         {review.image_url && (
           <img
             src={getUploadUrl(review.image_url)}
             alt=""
-            className="mt-2.5 rounded-lg max-h-48 object-cover"
+            className="mt-3 rounded-lg lg:rounded-xl w-full max-w-3xl max-h-52 lg:max-h-80 object-cover"
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
         )}

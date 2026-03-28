@@ -193,7 +193,7 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
               <label className="block text-xs text-gray-400 mb-2 font-medium">Обложка</label>
               <div className="relative group max-w-md mx-auto lg:max-w-none lg:mx-0">
                 {imageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden aspect-[3/4] w-full max-w-[420px] lg:max-w-none mx-auto lg:mx-0 border border-white/[0.08] shadow-xl shadow-black/40 ring-1 ring-white/[0.06]">
+                  <div className="relative rounded-2xl overflow-hidden aspect-[4/5] w-full max-w-[420px] lg:max-w-none mx-auto lg:mx-0 border border-white/[0.08] shadow-xl shadow-black/40 ring-1 ring-white/[0.06]">
                     <img
                       src={getUploadUrl(imageUrl)}
                       className="w-full h-full object-cover"
@@ -216,10 +216,10 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
                     </div>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full aspect-[3/4] max-w-[420px] lg:max-w-none min-h-[260px] mx-auto lg:mx-0 rounded-2xl border-2 border-dashed border-border hover:border-primary/45 cursor-pointer transition-colors bg-surface-2/80">
+                  <label className="flex flex-col items-center justify-center w-full aspect-[4/5] max-w-[420px] lg:max-w-none min-h-[260px] mx-auto lg:mx-0 rounded-2xl border-2 border-dashed border-border hover:border-primary/45 cursor-pointer transition-colors bg-surface-2/80">
                     <ImageIcon size={40} strokeWidth={1.5} className="text-gray-500 mb-3" />
                     <span className="text-sm font-semibold text-gray-400">Загрузить обложку</span>
-                    <span className="text-xs text-gray-600 mt-1">Формат как у карточки в каталоге (3:4)</span>
+                    <span className="text-xs text-gray-600 mt-1">Формат обложки 4:5 (чуть шире, чем классическое 3:4)</span>
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
                   </label>
                 )}
@@ -308,7 +308,7 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
           file={cropFile}
           onClose={() => { setCropOpen(false); setCropFile(null) }}
           onDone={handleCropDone}
-          aspect={3 / 4}
+          aspect={4 / 5}
         />
       )}
     </div>

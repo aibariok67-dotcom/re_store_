@@ -63,7 +63,7 @@ export function GameCard({ game, isFavorite = false, compact = false }: GameCard
       <div
         className={cn(
           'bg-surface-2 relative overflow-hidden flex-shrink-0',
-          compact ? 'aspect-[5/7]' : 'aspect-[3/4]'
+          compact ? 'aspect-[5/7]' : 'aspect-[4/5]'
         )}
       >
         {showImage ? (
