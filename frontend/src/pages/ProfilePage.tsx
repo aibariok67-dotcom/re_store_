@@ -230,11 +230,20 @@ export default function ProfilePage() {
               <p className="text-sm mt-1 text-gray-600">Добавляйте игры из каталога</p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 sm:gap-3">
-              {favorites.map((game) => (
-                <GameCard key={game.id} game={game} isFavorite compact />
-              ))}
-            </div>
+            <>
+              {/* Телефон: как раньше — плотная сетка и compact */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 sm:gap-3 md:hidden">
+                {favorites.map((game) => (
+                  <GameCard key={`fav-sm-${game.id}`} game={game} isFavorite compact />
+                ))}
+              </div>
+              {/* Монитор (md+): крупные карточки */}
+              <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
+                {favorites.map((game) => (
+                  <GameCard key={`fav-lg-${game.id}`} game={game} isFavorite />
+                ))}
+              </div>
+            </>
           )
         )}
 
