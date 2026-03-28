@@ -1,6 +1,6 @@
+import cloudinary
+import cloudinary.uploader
 import uuid
-import os
-import aiofiles
 
 from fastapi import APIRouter, UploadFile, File, Depends, Request
 from core.dependencies import get_current_user
@@ -11,6 +11,13 @@ from core.config import settings
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 logger = get_logger(__name__)
+
+# настройка cloudinary
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET,
+)
 
 ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
 MAX_SIZE = 5 * 1024 * 1024
@@ -26,22 +33,20 @@ async def upload_image(
     if file.content_type not in ALLOWED_TYPES:
         raise BadRequest("Только JPEG, PNG, WEBP")
 
-    # создаем папку если нет
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    contents = await file.read()
 
-    extension = file.filename.split(".")[-1]
-    filename = f"{uuid.uuid4()}.{extension}"
-    filepath = os.path.join(settings.UPLOAD_DIR, filename)
+    if len(contents) > MAX_SIZE:
+        raise BadRequest("Файл больше 5MB")
 
-    size = 0
+    # загрузка в cloudinary
+    result = cloudinary.uploader.upload(
+        contents,
+        public_id=str(uuid.uuid4()),
+        folder="re_store",
+    )
 
-    async with aiofiles.open(filepath, "wb") as f:
-        while chunk := await file.read(1024 * 1024):  # читаем по 1MB
-            size += len(chunk)
-            if size > MAX_SIZE:
-                raise BadRequest("Файл больше 5MB")
-            await f.write(chunk)
+    url = result["secure_url"]
 
-    logger.info(f"Загружено изображение: {filename} by={current_user.username}")
+    logger.info(f"Загружено изображение в cloudinary: {url} by={current_user.username}")
 
-    return {"url": f"/uploads/{filename}"}
+    return {"url": url}

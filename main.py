@@ -65,10 +65,6 @@ app.include_router(favorites.router)
 app.include_router(premium.router)
 
 # Mount AFTER routers so POST /uploads/image is handled by the router first
-import os as _os
-_os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
-
 
 @app.on_event("startup")
 async def startup():
