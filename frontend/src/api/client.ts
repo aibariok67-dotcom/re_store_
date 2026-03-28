@@ -1,9 +1,8 @@
 import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { API_BASE } from './config'
 
 export const client = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -27,25 +26,26 @@ client.interceptors.response.use(
 )
 
 /**
- * URL для отображения загруженного файла.
- * Всегда путь от корня сайта: /uploads/<file> — в dev Vite проксирует на FastAPI,
- * в Docker nginx проксирует (блок ^~ /uploads/, иначе *.jpg regex отдаёт 404).
- * Нормализует дубликаты префикса uploads/ в БД.
+ * URL для картинок и статики бэкенда.
+ * При абсолютном `API_BASE` (отдельный хост) — полный URL на бэкенд; иначе путь от корня SPA (прокси /uploads, /static).
  */
 export function getUploadUrl(path?: string | null): string {
   if (path == null || path === '') return ''
-  const raw = String(path).trim()
-  if (!raw) return ''
-  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw
+  const s = String(path).trim()
+  if (!s) return ''
+  if (s.startsWith('http://') || s.startsWith('https://')) return s
 
-  let p = raw.replace(/^\/+/, '')
+  const useBackendHost = /^https?:\/\//i.test(API_BASE)
+
+  let p = s.replace(/^\/+/, '')
   while (p.startsWith('uploads/')) {
     p = p.slice('uploads/'.length)
   }
 
-  if (p.startsWith('static/')) {
-    return `/${p}`
-  }
+  const pathFromSiteRoot = p.startsWith('static/') ? p : `uploads/${p}`
 
-  return `/uploads/${p}`
+  if (useBackendHost) {
+    return `${API_BASE.replace(/\/+$/, '')}/${pathFromSiteRoot}`
+  }
+  return `/${pathFromSiteRoot}`
 }

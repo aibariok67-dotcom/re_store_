@@ -44,4 +44,4 @@ async def upload_image(
 
     logger.info(f"Загружено изображение: {filename} by={current_user.username}")
 
-    return {"url": f"https://re-store-backend.onrender.com/uploads/{filename}"}
+    return {"url": f"/uploads/{filename}"}

@@ -1,14 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { API_BASE } from './config'
 
 function postUploadUrl(): string {
-  if (API_URL.startsWith('/')) {
-    return `${API_URL}/uploads/image`
-  }
-  try {
-    return `${new URL(API_URL).origin}/uploads/image`
-  } catch {
-    return 'http://localhost:8000/uploads/image'
-  }
+  return `${API_BASE}/uploads/image`
 }
 
 export async function uploadImage(blob: Blob, filename = 'image.jpg'): Promise<string> {
