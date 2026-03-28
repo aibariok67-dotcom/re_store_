@@ -22,9 +22,9 @@ import { cn } from '../utils/cn'
 
 function StatCard({ value, label }: { value: number; label: string }) {
   return (
-    <div className="text-center px-2 sm:px-4">
-      <div className="text-2xl font-extrabold text-white">{value}</div>
-      <div className="text-xs text-gray-500 mt-0.5 font-medium">{label}</div>
+    <div className="text-center px-2 sm:px-3">
+      <div className="text-xl font-extrabold text-white">{value}</div>
+      <div className="text-[11px] text-gray-500 mt-0.5 font-medium">{label}</div>
     </div>
   )
 }
@@ -90,12 +90,12 @@ export default function ProfilePage() {
   const joinDate = format(new Date(user.created_at), 'd MMMM yyyy', { locale: ru })
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-7 sm:py-9 space-y-7">
 
       <div className="card overflow-hidden border-white/[0.08] !p-0">
 
         {/* Ультраширокие баннеры (как киношный кадр): фокус справа — лицо / глаз */}
-        <div className="relative w-full h-[clamp(7.5rem,20vw,15rem)] sm:h-[clamp(8.5rem,22vw,17rem)] overflow-hidden group">
+        <div className="relative w-full h-[clamp(6.75rem,18vw,13.5rem)] sm:h-[clamp(7.65rem,19.8vw,15.3rem)] overflow-hidden group">
           {user.is_premium && bannerUrl ? (
             <img
               src={bannerUrl}
@@ -123,14 +123,14 @@ export default function ProfilePage() {
         </div>
 
         {/* Avatar + info row */}
-        <div className="px-6 pb-6 -mt-11 sm:-mt-12 relative">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-10 sm:-mt-11 relative">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 sm:gap-4">
 
             {/* Avatar */}
-            <div className="relative group flex-shrink-0 w-[4.5rem] h-[4.5rem]">
-              <UserAvatar user={user} size={72} className="ring-2 ring-surface shadow-lg" />
+            <div className="relative group flex-shrink-0 w-16 h-16">
+              <UserAvatar user={user} size={64} className="ring-2 ring-surface shadow-lg" />
               <label className="absolute inset-0 rounded-2xl cursor-pointer opacity-0 group-hover:opacity-100 bg-black/50 flex items-center justify-center transition-opacity">
-                <Camera size={20} className="text-white" />
+                <Camera size={18} className="text-white" />
                 <input type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
               </label>
             </div>
@@ -138,7 +138,7 @@ export default function ProfilePage() {
             {/* Name + badges + meta */}
             <div className="flex-1 min-w-0 sm:pb-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{user.username}</h1>
+                <h1 className="text-xl sm:text-[1.6875rem] font-black text-white tracking-tight">{user.username}</h1>
                 {user.is_admin && (
                   <span className="badge-admin flex items-center gap-1">
                     <Shield size={11} />
@@ -168,7 +168,7 @@ export default function ProfilePage() {
                 onClick={() => setEditOpen(true)}
                 className="btn-secondary shrink-0 w-fit touch-manipulation"
               >
-                <Edit2 size={18} strokeWidth={2} />
+                <Edit2 size={16} strokeWidth={2} />
                 Изменить
               </button>
             </div>
@@ -178,11 +178,11 @@ export default function ProfilePage() {
 
       {/* ── Content tabs ── */}
       <div>
-        <div className="flex gap-1.5 mb-6 bg-surface-2/90 rounded-xl p-1.5 w-fit border border-white/[0.08]">
+        <div className="flex gap-1.5 mb-5 bg-surface-2/90 rounded-xl p-1.5 w-fit border border-white/[0.08]">
           <button
             type="button"
             className={cn(
-              'px-6 min-h-11 rounded-lg text-[15px] font-bold transition-all',
+              'px-5 min-h-10 rounded-lg text-sm font-bold transition-all',
               tab === 'favorites'
                 ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-md shadow-primary/20'
                 : 'text-gray-400 hover:text-white hover:bg-white/[0.04]'
@@ -202,7 +202,7 @@ export default function ProfilePage() {
           <button
             type="button"
             className={cn(
-              'px-6 min-h-11 rounded-lg text-[15px] font-bold transition-all',
+              'px-5 min-h-10 rounded-lg text-sm font-bold transition-all',
               tab === 'reviews'
                 ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-md shadow-primary/20'
                 : 'text-gray-400 hover:text-white hover:bg-white/[0.04]'
@@ -224,9 +224,9 @@ export default function ProfilePage() {
         {/* Favorites grid */}
         {tab === 'favorites' && (
           favorites.length === 0 ? (
-            <div className="text-center py-20 text-gray-600">
-              <Heart size={40} className="mx-auto mb-3 opacity-20" />
-              <p className="text-base font-semibold text-gray-400">В избранном пусто</p>
+            <div className="text-center py-[4.5rem] text-gray-600">
+              <Heart size={36} className="mx-auto mb-3 opacity-20" />
+              <p className="text-[0.95rem] font-semibold text-gray-400">В избранном пусто</p>
               <p className="text-sm mt-1 text-gray-600">Добавляйте игры из каталога</p>
             </div>
           ) : (
@@ -250,31 +250,57 @@ export default function ProfilePage() {
         {/* Reviews list */}
         {tab === 'reviews' && (
           reviews.length === 0 ? (
-            <div className="text-center py-20 text-gray-600">
-              <Star size={40} className="mx-auto mb-3 opacity-20" />
-              <p className="text-base font-semibold text-gray-400">Вы еще не писали отзывов</p>
+            <div className="text-center py-[4.5rem] text-gray-600">
+              <Star size={36} className="mx-auto mb-3 opacity-20" />
+              <p className="text-[0.95rem] font-semibold text-gray-400">Вы еще не писали отзывов</p>
             </div>
           ) : (
             <div className="space-y-3">
               {reviews.map((r) => (
-                <div key={r.id} className="card p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        to={`/games/${r.game_id}`}
-                        className="group inline-flex max-w-full touch-manipulation items-center gap-2 rounded-xl border border-primary/30 bg-primary/[0.08] px-3 py-2 text-sm font-bold text-white shadow-sm shadow-black/20 transition-colors hover:border-primary/50 hover:bg-primary/15"
-                      >
-                        <Gamepad2 size={16} strokeWidth={2} className="shrink-0 text-primary-light" />
-                        <span className="min-w-0 truncate">
-                          {r.game_title?.trim() || `Игра #${r.game_id}`}
-                        </span>
-                        <ChevronRight
-                          size={16}
-                          strokeWidth={2}
-                          className="shrink-0 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-light"
+                <div key={r.id} className="card p-3.5 sm:p-4">
+                  <div className="flex items-start gap-3">
+                    <Link
+                      to={`/games/${r.game_id}`}
+                      className="shrink-0 touch-manipulation rounded-lg overflow-hidden ring-1 ring-white/[0.08] bg-surface-2 w-[3.25rem] h-[4.05rem] sm:w-14 sm:h-[4.375rem]"
+                    >
+                      {r.game_image_url ? (
+                        <img
+                          src={getUploadUrl(r.game_image_url)}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                         />
-                      </Link>
-                      <div className="flex items-center gap-1 mt-2">
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-600">
+                          <Gamepad2 size={20} strokeWidth={1.5} />
+                        </div>
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0 flex flex-col gap-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <Link
+                          to={`/games/${r.game_id}`}
+                          className="group inline-flex min-w-0 max-w-full touch-manipulation items-center gap-2 rounded-xl border border-primary/30 bg-primary/[0.08] px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm shadow-black/20 transition-colors hover:border-primary/50 hover:bg-primary/15"
+                        >
+                          <span className="min-w-0 truncate">
+                            {r.game_title?.trim() || `Игра #${r.game_id}`}
+                          </span>
+                          <ChevronRight
+                            size={14}
+                            strokeWidth={2}
+                            className="shrink-0 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:text-primary-light sm:w-4 sm:h-4"
+                          />
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => setReviewToDelete(r.id)}
+                          className="text-gray-600 hover:text-red-400 transition-colors flex-shrink-0 p-1.5 rounded-lg hover:bg-red-950/30"
+                          aria-label="Удалить отзыв"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
@@ -289,13 +315,6 @@ export default function ProfilePage() {
                         <span className="text-xs text-gray-400 ml-1.5 font-medium">{r.rating}/10</span>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setReviewToDelete(r.id)}
-                      className="text-gray-600 hover:text-red-400 transition-colors flex-shrink-0 p-1.5 rounded-lg hover:bg-red-950/30"
-                    >
-                      <Trash2 size={14} />
-                    </button>
                   </div>
                   <p className="text-sm text-gray-300 mt-2.5 leading-relaxed">{r.text}</p>
                   {r.image_url && (
@@ -320,11 +339,11 @@ export default function ProfilePage() {
       {!user.is_premium && (
         <Link
           to="/premium"
-          className="card p-5 flex items-center justify-between hover:border-primary/40 transition-all group"
+          className="card p-4 flex items-center justify-between hover:border-primary/40 transition-all group"
         >
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-primary/20">
-              <Crown size={18} className="text-primary-light" />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-primary/20">
+              <Crown size={16} className="text-primary-light" />
             </div>
             <div>
               <p className="font-bold text-white text-sm">Получить Premium</p>

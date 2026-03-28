@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { ImageIcon, Loader2, X } from 'lucide-react'
@@ -61,7 +61,7 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
         publisher: publisher.trim() || undefined,
         series: series.trim() || undefined,
         release_date: releaseDate || undefined,
-        aliases: aliases.trim() || undefined,
+        aliases: aliasTokens.length ? aliasTokens.join(', ') : undefined,
         rating: rating ? Number(rating) : undefined,
         image_url: imageUrl || undefined,
         category_ids: selectedCategories,
@@ -114,6 +114,15 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
     )
   }
 
+  const aliasTokens = useMemo(
+    () =>
+      aliases
+        .split(/[,;]+/)
+        .map((s) => s.trim())
+        .filter(Boolean),
+    [aliases]
+  )
+
   return (
     <div>
       <h2 className="text-lg font-bold text-white mb-6">
@@ -146,7 +155,22 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
                 onChange={(e) => setAliases(e.target.value)}
                 placeholder="RE4, Biohazard 4"
               />
-              <p className="text-xs text-gray-600 mt-1">Используются в поиске</p>
+              <p className="text-xs text-gray-600 mt-1">Используются в поиске: каждое слово из запроса должно найтись в названии или в одном из псевдонимов.</p>
+              {aliasTokens.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 w-full">
+                    Сейчас в алиасах ({aliasTokens.length}):
+                  </span>
+                  {aliasTokens.map((word, i) => (
+                    <span
+                      key={`${word}-${i}`}
+                      className="inline-flex items-center rounded-lg border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary-light"
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>

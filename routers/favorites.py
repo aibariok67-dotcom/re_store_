@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.dependencies import get_current_user
 from core.logging_config import get_logger
-from schemas.game import GameResponse
+from schemas.game import GameResponse, game_to_response
 from services import favorite_service
+from services.user_service import get_user_by_id
 
 router = APIRouter(prefix="/favorites", tags=["Favorites"])
 logger = get_logger(__name__)
@@ -12,7 +13,16 @@ logger = get_logger(__name__)
 
 @router.get("/", response_model=list[GameResponse])
 async def get_favorites(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
-    return await favorite_service.get_favorites(db, current_user.id)
+    rows = await favorite_service.get_favorites_for_user(db, current_user.id)
+    return [game_to_response(g, avg) for g, avg in rows]
+
+
+@router.get("/user/{user_id}", response_model=list[GameResponse])
+async def get_favorites_by_user_id(user_id: int, db: AsyncSession = Depends(get_db)):
+    if await get_user_by_id(db, user_id) is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    rows = await favorite_service.get_favorites_for_user(db, user_id)
+    return [game_to_response(g, avg) for g, avg in rows]
 
 
 @router.post("/{game_id}")

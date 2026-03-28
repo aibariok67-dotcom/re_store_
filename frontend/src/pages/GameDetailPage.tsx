@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Star, Calendar, Building2, BookOpen, Heart, ArrowLeft, Trash2, Image as ImageIcon, MessagesSquare,
+  ChevronDown, ChevronUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getGame } from '../api/games'
@@ -59,6 +60,7 @@ export default function GameDetailPage() {
   const [cropFile, setCropFile] = useState<File | null>(null)
   const [imgError, setImgError] = useState(false)
   const [reviewToDelete, setReviewToDelete] = useState<number | null>(null)
+  const [reviewFormOpen, setReviewFormOpen] = useState(true)
 
   const { data: game, isLoading: gameLoading } = useQuery({
     queryKey: ['game', gameId],
@@ -318,7 +320,27 @@ export default function GameDetailPage() {
         {/* Review form */}
         {isAuthenticated && !userHasReview && (
           <div className="card p-6 sm:p-7 lg:p-8 mb-8 border-white/[0.08]">
-            <h3 className="text-base lg:text-lg font-bold text-white mb-5">Написать отзыв</h3>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 lg:mb-5">
+              <h3 className="text-base lg:text-lg font-bold text-white">Написать отзыв</h3>
+              <button
+                type="button"
+                onClick={() => setReviewFormOpen((o) => !o)}
+                className="btn-ghost min-h-10 px-3 text-sm font-semibold text-gray-400 hover:text-white"
+              >
+                {reviewFormOpen ? (
+                  <>
+                    <ChevronUp size={18} strokeWidth={2} />
+                    Свернуть
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={18} strokeWidth={2} />
+                    Развернуть
+                  </>
+                )}
+              </button>
+            </div>
+            {reviewFormOpen && (
             <form
               onSubmit={(e) => { e.preventDefault(); submitReview.mutate() }}
               className="space-y-3"
@@ -378,6 +400,7 @@ export default function GameDetailPage() {
                 {submitReview.isPending ? 'Отправляю...' : 'Отправить'}
               </button>
             </form>
+            )}
           </div>
         )}
 
@@ -480,7 +503,7 @@ function ReviewCard({
       <Link to={`/users/${review.user_id}`} className="flex-shrink-0">
         <UserAvatar
           user={{
-            username: review.username,
+            username: review.username ?? '—',
             avatar_url: review.avatar_url,
             is_premium: review.is_premium ?? false,
             premium_theme: review.premium_theme ?? 'indigo',
@@ -496,7 +519,7 @@ function ReviewCard({
               to={`/users/${review.user_id}`}
               className="text-sm lg:text-[15px] font-semibold text-white hover:text-primary-light transition-colors"
             >
-              {review.username}
+              {review.username ?? 'Пользователь'}
             </Link>
             {review.is_premium && (
               <span className="badge-premium text-[10px]">PREMIUM</span>

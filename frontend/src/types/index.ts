@@ -76,11 +76,13 @@ export interface User {
 export interface Review {
   id: number
   user_id: number
-  username: string
+  username?: string
   avatar_url?: string
   game_id: number
   /** Подставляется в списках отзывов пользователя (мой профиль / профиль другого юзера) */
   game_title?: string | null
+  /** Обложка игры (только в списках отзывов по пользователю) */
+  game_image_url?: string | null
   rating: number
   text: string
   image_url?: string

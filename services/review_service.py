@@ -69,7 +69,7 @@ async def get_reviews_by_user(db: AsyncSession, user_id: int) -> list:
     from models.game import Game
 
     result = await db.execute(
-        select(Review, Game.title)
+        select(Review, Game.title, Game.image_url)
         .join(Game, Game.id == Review.game_id)
         .where(Review.user_id == user_id)
         .order_by(Review.created_at.desc())
@@ -81,10 +81,11 @@ async def get_reviews_by_user(db: AsyncSession, user_id: int) -> list:
             "user_id": r.user_id,
             "game_id": r.game_id,
             "game_title": title,
+            "game_image_url": game_image,
             "rating": r.rating,
             "text": r.text,
             "image_url": r.image_url,
             "created_at": r.created_at,
         }
-        for r, title in rows
+        for r, title, game_image in rows
     ]

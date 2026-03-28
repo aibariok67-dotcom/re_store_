@@ -41,12 +41,19 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
         for plat_id in platform_ids:
             query = query.filter(Game.platforms.any(Platform.id == plat_id))
     if search:
-        query = query.where(
-            or_(
-                Game.title.ilike(f"%{search}%"),
-                Game.aliases.ilike(f"%{search}%")
-            )
-        )
+        raw = search.strip()
+        if raw:
+            # Каждое слово запроса должно встречаться в названии или в строке алиасов (через запятую/точку с запятой).
+            tokens = [t for t in raw.replace(";", " ").split() if t]
+            if tokens:
+                for token in tokens:
+                    pat = f"%{token}%"
+                    query = query.where(
+                        or_(
+                            Game.title.ilike(pat),
+                            Game.aliases.ilike(pat),
+                        )
+                    )
     if min_rating is not None:
         query = query.where(Game.rating >= min_rating)
     if developer:
