@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Star, Calendar, Building2, BookOpen, Heart, ArrowLeft, Trash2, Image as ImageIcon
+  Star, Calendar, Building2, BookOpen, Heart, ArrowLeft, Trash2, Image as ImageIcon, MessagesSquare,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getGame } from '../api/games'
@@ -24,6 +24,16 @@ const THEME_RING: Record<string, string> = {
   sky: 'ring-sky-500/40',
   emerald: 'ring-emerald-500/40',
   rose: 'ring-rose-500/40',
+}
+
+function reviewsCountLabel(n: number): string {
+  if (n <= 0) return ''
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 14) return ` · ${n} отзывов`
+  if (mod10 === 1) return ` · ${n} отзыв`
+  if (mod10 >= 2 && mod10 <= 4) return ` · ${n} отзыва`
+  return ` · ${n} отзывов`
 }
 
 function CloseIcon({ size }: { size: number }) {
@@ -103,6 +113,7 @@ export default function GameDetailPage() {
     onSuccess: () => {
       toast.success('Отзыв удален')
       qc.invalidateQueries({ queryKey: ['reviews', gameId] })
+      qc.invalidateQueries({ queryKey: ['game', gameId] })
       setReviewToDelete(null)
     },
     onError: () => toast.error('Ошибка'),
@@ -156,17 +167,17 @@ export default function GameDetailPage() {
   const userHasReview = reviews.some((r) => r.user_id === user?.id)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 min-h-11 px-4 -ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all text-[15px] font-semibold mb-8"
+        className="inline-flex items-center gap-2 min-h-11 px-3 sm:px-4 -ml-1 sm:-ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all text-[15px] font-semibold mb-6 sm:mb-8 touch-manipulation"
       >
         <ArrowLeft size={18} strokeWidth={2} />
         Все игры
       </Link>
 
-      <div className="flex flex-col sm:flex-row gap-8 lg:gap-10 mb-12">
-        <div className="w-full sm:w-60 flex-shrink-0">
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 lg:gap-10 mb-10 sm:mb-12">
+        <div className="w-full max-w-[min(100%,240px)] mx-auto sm:mx-0 sm:max-w-none sm:w-60 flex-shrink-0">
           <div className="rounded-2xl overflow-hidden card aspect-[3/4] !p-0 border-white/[0.08] shadow-glow-sm">
             {showImage ? (
               <img
@@ -191,14 +202,16 @@ export default function GameDetailPage() {
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight">{game.title}</h1>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 mb-4">
+            <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight tracking-tight min-w-0 order-1">
+              {game.title}
+            </h1>
             {isAuthenticated && (
               <button
                 type="button"
                 onClick={() => toggleFav.mutate()}
                 className={cn(
-                  'flex items-center gap-2 min-h-11 px-5 rounded-xl border transition-all flex-shrink-0 text-[15px] font-semibold',
+                  'flex items-center justify-center gap-2 min-h-11 px-5 rounded-xl border transition-all w-full sm:w-auto sm:flex-shrink-0 text-[15px] font-semibold touch-manipulation order-2',
                   isFavorite
                     ? 'bg-red-500/15 border-red-500/35 text-red-400'
                     : 'border-white/[0.1] text-gray-300 hover:border-red-500/35 hover:text-red-400 hover:bg-red-500/5'
@@ -210,14 +223,32 @@ export default function GameDetailPage() {
             )}
           </div>
 
-          {/* Rating */}
-          {game.rating !== undefined && game.rating !== null && (
-            <div className="flex items-center gap-2 mb-5">
-              <div className="flex items-center gap-2.5 bg-amber-500/10 border border-amber-400/25 rounded-xl px-4 py-2.5">
-                <Star size={18} className="text-amber-400 fill-amber-400" strokeWidth={2} />
-                <span className="text-xl font-extrabold text-white">{game.rating}</span>
-                <span className="text-sm text-gray-500 font-medium">/ 10</span>
-              </div>
+          {/* Рейтинги: IMDb (админка) и средняя по отзывам на сайте */}
+          {(game.rating != null || game.reviews_rating_avg != null) && (
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-5">
+              {game.rating != null && (
+                <div className="flex flex-col gap-1 rounded-xl px-4 py-3 bg-amber-500/10 border border-amber-400/25 min-w-0 sm:min-w-[11rem]">
+                  <div className="flex items-center gap-2.5">
+                    <Star size={18} className="text-amber-400 fill-amber-400 shrink-0" strokeWidth={2} />
+                    <span className="text-xl font-extrabold text-white tabular-nums">{game.rating}</span>
+                    <span className="text-sm text-gray-500 font-medium">/ 10</span>
+                  </div>
+                  <span className="text-xs text-amber-200/75 font-medium leading-snug">Рейтинг IMDb</span>
+                </div>
+              )}
+              {game.reviews_rating_avg != null && (
+                <div className="flex flex-col gap-1 rounded-xl px-4 py-3 bg-emerald-500/10 border border-emerald-400/25 min-w-0 sm:min-w-[11rem]">
+                  <div className="flex items-center gap-2.5">
+                    <MessagesSquare size={18} className="text-emerald-400 shrink-0" strokeWidth={2} />
+                    <span className="text-xl font-extrabold text-white tabular-nums">{game.reviews_rating_avg}</span>
+                    <span className="text-sm text-gray-500 font-medium">/ 10</span>
+                  </div>
+                  <span className="text-xs text-emerald-200/75 font-medium leading-snug">
+                    Средняя оценка на сайте
+                    {reviewsCountLabel(reviews.length)}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
@@ -238,33 +269,33 @@ export default function GameDetailPage() {
           )}
 
           {/* Meta */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm mb-5">
             {game.developer && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <Building2 size={14} className="text-gray-600 flex-shrink-0" />
-                <span className="text-gray-500">Разработчик</span>
-                <span className="text-white font-medium truncate">{game.developer}</span>
+                <span className="text-gray-500 shrink-0">Разработчик</span>
+                <span className="text-white font-medium min-w-0 break-words">{game.developer}</span>
               </div>
             )}
             {game.publisher && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <Building2 size={14} className="text-gray-600 flex-shrink-0" />
-                <span className="text-gray-500">Издатель</span>
-                <span className="text-white font-medium truncate">{game.publisher}</span>
+                <span className="text-gray-500 shrink-0">Издатель</span>
+                <span className="text-white font-medium min-w-0 break-words">{game.publisher}</span>
               </div>
             )}
             {game.release_date && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <Calendar size={14} className="text-gray-600 flex-shrink-0" />
-                <span className="text-gray-500">Дата выхода</span>
-                <span className="text-white font-medium">{game.release_date}</span>
+                <span className="text-gray-500 shrink-0">Дата выхода</span>
+                <span className="text-white font-medium tabular-nums">{game.release_date}</span>
               </div>
             )}
             {game.series && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <BookOpen size={14} className="text-gray-600 flex-shrink-0" />
-                <span className="text-gray-500">Серия</span>
-                <span className="text-white font-medium truncate">{game.series}</span>
+                <span className="text-gray-500 shrink-0">Серия</span>
+                <span className="text-white font-medium min-w-0 break-words">{game.series}</span>
               </div>
             )}
           </div>

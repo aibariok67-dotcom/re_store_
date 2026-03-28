@@ -51,14 +51,17 @@
 /* ── Base ── */
 html {
   font-size: 16px;
+  overflow-x: clip;
 }
 
 body {
   color: rgb(228 228 240);
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
   background-color: rgb(6 6 12);
   background-image:
     radial-gradient(ellipse 100% 70% at 50% -15%, rgb(var(--color-primary) / 0.14), transparent 55%),
@@ -118,12 +121,21 @@ body {
 
 /* ── Components ── */
 .input {
-  @apply w-full min-h-11 bg-surface-2/90 border border-white/[0.08] rounded-xl px-4 py-3 text-[15px] text-white placeholder-gray-500
+  @apply w-full min-h-11 bg-surface-2/90 border border-white/[0.08] rounded-xl px-4 py-3 text-[15px] sm:text-[15px] text-white placeholder-gray-500
     focus:outline-none focus:border-primary/55 focus:ring-2 focus:ring-primary/20 transition-all duration-200;
 }
 
+/* На iOS поля меньше 16px зумят страницу при фокусе */
+@media (max-width: 639px) {
+  .input,
+  input.input,
+  textarea.input {
+    font-size: 16px;
+  }
+}
+
 .btn {
-  @apply inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-[15px] font-semibold tracking-tight
+  @apply inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-[15px] font-semibold tracking-tight touch-manipulation
     transition-all duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-45 disabled:cursor-not-allowed disabled:active:scale-100;
 }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Heart } from 'lucide-react'
+import { Star, Heart, MessagesSquare } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { getUploadUrl } from '../api/client'
@@ -86,28 +86,77 @@ export function GameCard({ game, isFavorite = false, compact = false }: GameCard
           )}
         />
 
-        {game.rating !== undefined && game.rating !== null && (
+        {(game.rating != null || game.reviews_rating_avg != null) && (
           <div
             className={cn(
-              'absolute flex items-center bg-black/55 backdrop-blur-md ring-1 ring-white/10',
-              compact
-                ? 'top-2 left-2 gap-1 px-1.5 py-1 rounded-lg'
-                : 'top-3 left-3 gap-1.5 px-2.5 py-1.5 rounded-xl'
+              'absolute left-2 top-2 sm:left-3 sm:top-3 flex max-w-[calc(100%-3.25rem)] flex-col gap-1 pointer-events-none',
+              compact && 'left-1.5 top-1.5 sm:left-2 sm:top-2 max-w-[calc(100%-2.75rem)]'
             )}
           >
-            <Star
-              size={compact ? 11 : 13}
-              className="text-amber-400 fill-amber-400"
-              strokeWidth={2}
-            />
-            <span
-              className={cn(
-                'font-bold text-white tabular-nums',
-                compact ? 'text-xs' : 'text-sm'
-              )}
-            >
-              {game.rating}
-            </span>
+            {game.rating != null && (
+              <div
+                className={cn(
+                  'flex flex-col gap-0.5 rounded-lg bg-black/60 backdrop-blur-md ring-1 ring-white/10',
+                  compact ? 'px-1.5 py-1' : 'px-2 py-1.5 sm:rounded-xl sm:px-2.5 sm:py-1.5'
+                )}
+              >
+                <div className={cn('flex items-center gap-1', compact ? 'gap-0.5' : 'gap-1.5')}>
+                  <Star
+                    size={compact ? 10 : 12}
+                    className="shrink-0 text-amber-400 fill-amber-400"
+                    strokeWidth={2}
+                  />
+                  <span
+                    className={cn(
+                      'font-bold text-white tabular-nums leading-none',
+                      compact ? 'text-[10px]' : 'text-xs sm:text-sm'
+                    )}
+                  >
+                    {game.rating}
+                  </span>
+                </div>
+                <span
+                  className={cn(
+                    'font-semibold uppercase tracking-wide text-amber-200/80',
+                    compact ? 'text-[7px] leading-tight' : 'text-[8px] sm:text-[9px]'
+                  )}
+                >
+                  IMDb
+                </span>
+              </div>
+            )}
+            {game.reviews_rating_avg != null && (
+              <div
+                className={cn(
+                  'flex flex-col gap-0.5 rounded-lg bg-black/60 backdrop-blur-md ring-1 ring-emerald-500/25',
+                  compact ? 'px-1.5 py-1' : 'px-2 py-1.5 sm:rounded-xl sm:px-2.5 sm:py-1.5'
+                )}
+              >
+                <div className={cn('flex items-center gap-1', compact ? 'gap-0.5' : 'gap-1.5')}>
+                  <MessagesSquare
+                    size={compact ? 10 : 12}
+                    className="shrink-0 text-emerald-400"
+                    strokeWidth={2}
+                  />
+                  <span
+                    className={cn(
+                      'font-bold text-white tabular-nums leading-none',
+                      compact ? 'text-[10px]' : 'text-xs sm:text-sm'
+                    )}
+                  >
+                    {game.reviews_rating_avg}
+                  </span>
+                </div>
+                <span
+                  className={cn(
+                    'font-semibold text-emerald-200/80',
+                    compact ? 'text-[7px] leading-tight' : 'text-[8px] sm:text-[9px]'
+                  )}
+                >
+                  на сайте
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -115,13 +164,13 @@ export function GameCard({ game, isFavorite = false, compact = false }: GameCard
           <button
             type="button"
             className={cn(
-              'absolute flex items-center justify-center transition-all duration-200 ring-1 ring-white/10',
+              'absolute flex items-center justify-center transition-all duration-200 ring-1 ring-white/10 touch-manipulation z-[1]',
               compact
                 ? 'top-2 right-2 min-h-8 min-w-8 rounded-lg'
                 : 'top-3 right-3 min-h-11 min-w-11 rounded-xl',
               isFavorite
                 ? 'bg-red-500/25 backdrop-blur-md text-red-400'
-                : 'bg-black/45 backdrop-blur-md text-white/60 hover:text-red-400 opacity-0 group-hover:opacity-100'
+                : 'bg-black/45 backdrop-blur-md text-white/70 hover:text-red-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
             )}
             onClick={(e) => {
               e.preventDefault()

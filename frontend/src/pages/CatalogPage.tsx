@@ -141,13 +141,13 @@ export default function CatalogPage() {
     sort || minRating || developer || publisher || dateFrom || dateTo
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      <div className="mb-5 rounded-2xl border border-white/[0.07] bg-surface/35 backdrop-blur-sm px-4 py-3.5 sm:px-5 sm:py-3.5 flex gap-3 sm:gap-3.5 items-center">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 border border-primary/25 text-primary-light">
+    <div className="max-w-[1440px] mx-auto px-3 sm:px-6 py-5 sm:py-8">
+      <div className="mb-4 sm:mb-5 rounded-2xl border border-white/[0.07] bg-surface/35 backdrop-blur-sm px-3.5 py-3 sm:px-5 sm:py-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3.5">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 border border-primary/25 text-primary-light mx-auto sm:mx-0">
           <MessagesSquare size={18} strokeWidth={2} />
         </div>
-        <p className="text-sm font-semibold text-gray-200 sm:text-[15px] leading-snug">
-          Отзывы игроков и рейтинг на странице игры — главный ориентир, что поиграть дальше.
+        <p className="text-center sm:text-left text-xs sm:text-[15px] font-semibold text-gray-200 leading-relaxed">
+          Отзывы игроков и средняя оценка на сайте — главный ориентир, что поиграть дальше. Рядом с карточками также показан рейтинг IMDb, если он указан в каталоге.
         </p>
       </div>
 
@@ -156,8 +156,8 @@ export default function CatalogPage() {
           <div className="relative flex-1 flex items-center min-h-[3.25rem] bg-surface/90 border border-white/[0.08] rounded-xl focus-within:border-primary/45 focus-within:ring-2 focus-within:ring-primary/15 transition-all shadow-lg shadow-black/20">
             <Search size={20} className="ml-4 text-gray-500 flex-shrink-0" strokeWidth={2} />
             <input
-              className="flex-1 bg-transparent px-3 py-3 text-[15px] text-white placeholder-gray-500 focus:outline-none"
-              placeholder="     Поиск по названию..."
+              className="flex-1 min-w-0 bg-transparent px-3 py-3 text-base sm:text-[15px] text-white placeholder-gray-500 focus:outline-none"
+              placeholder="Поиск по названию..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
@@ -217,10 +217,13 @@ export default function CatalogPage() {
                 {g.categories.length > 0 && (
                   <span className="text-xs text-gray-500">{g.categories[0].name}</span>
                 )}
-                {g.rating !== undefined && g.rating !== null && (
-                  <span className="ml-auto text-xs font-bold text-yellow-400 flex items-center gap-1">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>
-                    {g.rating}
+                {g.rating != null && (
+                  <span className="ml-auto flex flex-col items-end gap-0.5">
+                    <span className="text-[9px] font-bold uppercase tracking-wide text-amber-200/70">IMDb</span>
+                    <span className="text-xs font-bold text-amber-400 flex items-center gap-1 tabular-nums">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>
+                      {g.rating}
+                    </span>
                   </span>
                 )}
               </a>
@@ -275,9 +278,9 @@ export default function CatalogPage() {
           </div>
 
           {/* Advanced filters row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Мин. рейтинг</label>
+              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Мин. рейтинг IMDb</label>
               <input
                 type="number"
                 className="input"
@@ -377,7 +380,7 @@ export default function CatalogPage() {
 
       {/* Games grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="card rounded-2xl overflow-hidden !p-0">
               <div className="aspect-[3/4] bg-surface-2 animate-pulse" />
@@ -395,7 +398,7 @@ export default function CatalogPage() {
           <p className="text-sm mt-1.5 text-gray-600">Попробуйте изменить параметры поиска</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {games.map((game) => (
             <GameCard
               key={game.id}
@@ -408,17 +411,19 @@ export default function CatalogPage() {
 
       {/* Pagination */}
       {games.length === 20 || page > 1 ? (
-        <div className="flex justify-center items-center gap-3 mt-10">
+        <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mt-8 sm:mt-10 px-1">
           <button
-            className="btn-secondary"
+            type="button"
+            className="btn-secondary min-w-[7rem] justify-center"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             Назад
           </button>
-          <span className="text-sm text-gray-500 font-medium px-3">Стр. {page}</span>
+          <span className="text-sm text-gray-500 font-medium px-2 sm:px-3 tabular-nums">Стр. {page}</span>
           <button
-            className="btn-secondary"
+            type="button"
+            className="btn-secondary min-w-[7rem] justify-center"
             onClick={() => setPage((p) => p + 1)}
             disabled={games.length < 20}
           >

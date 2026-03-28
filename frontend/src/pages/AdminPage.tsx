@@ -34,16 +34,16 @@ export default function AdminPage() {
   })
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Панель управления</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Панель управления</h1>
           <p className="text-gray-500 text-sm mt-0.5">Управление контентом и пользователями</p>
         </div>
         <Link
           to="/"
-          className="btn-secondary min-h-11"
+          className="btn-secondary min-h-11 w-full sm:w-auto justify-center shrink-0"
         >
           <ArrowLeft size={18} strokeWidth={2} />
           На сайт

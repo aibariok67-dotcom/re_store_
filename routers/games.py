@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.dependencies import get_current_admin
 from services import game_service
-from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate
+from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate, game_to_response
 from core.logging_config import get_logger
 
 router = APIRouter(prefix="/games", tags=["Games"])
@@ -25,17 +25,19 @@ async def get_games(
     order: str = Query(default="asc"),
     db: AsyncSession = Depends(get_db)
 ):
-    return await game_service.get_games(
+    rows = await game_service.get_games(
         db, category_ids, platform_ids, search,
         min_rating, developer, publisher,
         release_date_from, release_date_to,
         page, limit, sort_by, order
     )
+    return [game_to_response(g, avg) for g, avg in rows]
 
 
 @router.get("/{game_id}", response_model=GameResponse)
 async def get_game(game_id: int, db: AsyncSession = Depends(get_db)):
-    return await game_service.get_game(db, game_id)
+    game, avg = await game_service.get_game_with_review_avg(db, game_id)
+    return game_to_response(game, avg)
 
 
 @router.post("/", response_model=GameResponse)
@@ -44,7 +46,8 @@ async def create_game(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_admin)
 ):
-    return await game_service.create_game(db, game)
+    game = await game_service.create_game(db, game)
+    return game_to_response(game, None)
     logger.info(f"Игра создана: {game.title} by={current_user.username}")
 
 
@@ -57,7 +60,9 @@ async def update_game(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_admin)
 ):
-    return await game_service.update_game(db, game_id, game)
+    game_orm = await game_service.update_game(db, game_id, game)
+    _, avg = await game_service.get_game_with_review_avg(db, game_id)
+    return game_to_response(game_orm, avg)
 
 
 @router.patch("/{game_id}", response_model=GameResponse)
@@ -67,7 +72,9 @@ async def patch_game(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_admin)
 ):
-    return await game_service.patch_game(db, game_id, game)
+    game_orm = await game_service.patch_game(db, game_id, game)
+    _, avg = await game_service.get_game_with_review_avg(db, game_id)
+    return game_to_response(game_orm, avg)
 
 
 @router.delete("/{game_id}", response_model=GameResponse)
@@ -76,6 +83,7 @@ async def delete_game(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_admin)
 ):
-    return await game_service.delete_game(db, game_id)
+    game_orm, reviews_avg = await game_service.delete_game(db, game_id)
+    return game_to_response(game_orm, reviews_avg)
     logger.info(f"Игра удалена: id={game_id} by={current_user.username}")
     

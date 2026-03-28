@@ -27,8 +27,8 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 nav-shell">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 min-h-[4.25rem] flex items-center justify-between py-2">
+      <nav className="sticky top-0 z-40 nav-shell pt-[env(safe-area-inset-top)]">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-6 min-h-[3.75rem] sm:min-h-[4.25rem] flex items-center justify-between py-2 gap-2">
           <div className="flex items-center gap-3 sm:gap-5 min-w-0">
             <Link
               to="/"

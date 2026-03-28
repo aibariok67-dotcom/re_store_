@@ -1,13 +1,19 @@
-from re import search
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from fastapi import HTTPException
 from models.game import Game
 from models.category import Category
 from models.platform import Platform
+from models.review import Review
 from schemas.game import GameCreate, GamePatch, GameUpdate
 from datetime import date
+
+REVIEW_AVG_SUBQ = (
+    select(Review.game_id, func.avg(Review.rating).label("reviews_rating_avg"))
+    .group_by(Review.game_id)
+    .subquery()
+)
+
 
 def parse_date(value: str, is_end: bool = False) -> date:
     if len(value) == 4:  # передали только год
@@ -22,7 +28,11 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
     category_ids = category_ids or []
     platform_ids = platform_ids or []
 
-    query = select(Game).distinct()
+    query = (
+        select(Game, REVIEW_AVG_SUBQ.c.reviews_rating_avg)
+        .outerjoin(REVIEW_AVG_SUBQ, Game.id == REVIEW_AVG_SUBQ.c.game_id)
+        .distinct()
+    )
 
     if category_ids:
         for cat_id in category_ids:
@@ -64,14 +74,36 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
     query = query.offset(offset).limit(limit)
 
     result = await db.execute(query)
-    return result.unique().scalars().all()
+    rows = result.unique().all()
+    out = []
+    for row in rows:
+        game = row[0]
+        raw_avg = row[1]
+        avg = round(float(raw_avg), 2) if raw_avg is not None else None
+        out.append((game, avg))
+    return out
 
-async def get_game(db: AsyncSession, game_id: int):
+
+async def _load_game(db: AsyncSession, game_id: int) -> Game:
     result = await db.execute(select(Game).where(Game.id == game_id))
     game = result.unique().scalars().one_or_none()
     if not game:
         raise HTTPException(status_code=404, detail=f"Game {game_id} not found")
     return game
+
+
+async def _review_avg_for_game(db: AsyncSession, game_id: int) -> float | None:
+    result = await db.execute(
+        select(REVIEW_AVG_SUBQ.c.reviews_rating_avg).where(REVIEW_AVG_SUBQ.c.game_id == game_id)
+    )
+    raw = result.scalar_one_or_none()
+    return round(float(raw), 2) if raw is not None else None
+
+
+async def get_game_with_review_avg(db: AsyncSession, game_id: int) -> tuple[Game, float | None]:
+    game = await _load_game(db, game_id)
+    avg = await _review_avg_for_game(db, game_id)
+    return game, avg
 
 
 async def _resolve_relations(db: AsyncSession, category_ids: list[int], platform_ids: list[int]):
@@ -111,7 +143,7 @@ async def create_game(db: AsyncSession, game: GameCreate):
 
 
 async def update_game(db: AsyncSession, game_id: int, game_data: GameUpdate):
-    game = await get_game(db, game_id)
+    game = await _load_game(db, game_id)
 
     category_ids = game_data.category_ids or []
     platform_ids = game_data.platform_ids or []
@@ -128,7 +160,7 @@ async def update_game(db: AsyncSession, game_id: int, game_data: GameUpdate):
     return game
 
 async def patch_game(db: AsyncSession, game_id: int, game_data: GamePatch):
-    game = await get_game(db, game_id)
+    game = await _load_game(db, game_id)
 
     update_fields = game_data.model_dump(exclude_unset=True, exclude={"category_ids", "platform_ids"})
     for field, value in update_fields.items():
@@ -147,8 +179,9 @@ async def patch_game(db: AsyncSession, game_id: int, game_data: GamePatch):
     return game
 
 async def delete_game(db: AsyncSession, game_id: int):
-    game = await get_game(db, game_id)
-    
+    game = await _load_game(db, game_id)
+    reviews_avg = await _review_avg_for_game(db, game_id)
+
     # Сначала удаляем все отзывы и избранное этой игры
     from models.review import Review
     from models.favorite import Favorite
@@ -159,4 +192,4 @@ async def delete_game(db: AsyncSession, game_id: int):
     
     await db.delete(game)
     await db.commit()
-    return game
+    return game, reviews_avg

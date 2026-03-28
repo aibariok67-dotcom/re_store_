@@ -170,7 +170,7 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Рейтинг (0–10)</label>
+              <label className="block text-xs text-gray-400 mb-1">Рейтинг IMDb (0–10)</label>
               <input
                 type="number"
                 className="input"
@@ -181,6 +181,9 @@ export function GameForm({ game, onSuccess }: GameFormProps) {
                 value={rating}
                 onChange={(e) => setRating(e.target.value)}
               />
+              <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+                Официальный или справочный рейтинг с IMDb. Оценки игроков на сайте считаются отдельно и показываются на странице игры.
+              </p>
             </div>
           </div>
 

@@ -36,7 +36,7 @@ export function AdminGames() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-bold text-white">Игры</h2>
         <span className="text-sm text-gray-500">{games.length} игр</span>
       </div>
@@ -46,7 +46,7 @@ export function AdminGames() {
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
         <input
           className="input pl-9"
-          placeholder="         Поиск по названию..."
+          placeholder="Поиск по названию..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -80,7 +80,7 @@ export function AdminGames() {
             return (
               <div
                 key={game.id}
-                className="flex items-center gap-3 px-3 py-2.5 bg-surface-2 rounded-xl border border-border hover:border-border/80 transition-colors"
+                className="flex flex-col gap-3 sm:flex-row sm:items-center px-3 py-3 sm:py-2.5 bg-surface-2 rounded-xl border border-border hover:border-border/80 transition-colors"
               >
                 {/* Thumbnail */}
                 <div className="w-10 h-14 rounded overflow-hidden bg-surface flex-shrink-0">
@@ -101,10 +101,10 @@ export function AdminGames() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex flex-wrap items-stretch sm:items-center justify-stretch sm:justify-end gap-2">
                   <Link
                     to={`/games/${game.id}`}
-                    className="btn-secondary min-h-10 px-3 py-2 text-sm font-semibold gap-2"
+                    className="btn-secondary min-h-10 flex-1 sm:flex-initial px-3 py-2 text-sm font-semibold gap-2 justify-center"
                     title="Открыть"
                   >
                     <ExternalLink size={16} strokeWidth={2} />
@@ -112,7 +112,7 @@ export function AdminGames() {
                   </Link>
                   <button
                     type="button"
-                    className="btn-primary min-h-10 px-4 py-2 text-sm font-bold gap-2 shadow-md shadow-primary/20"
+                    className="btn-primary min-h-10 flex-1 sm:flex-initial px-4 py-2 text-sm font-bold gap-2 shadow-md shadow-primary/20 justify-center"
                     title="Редактировать"
                     onClick={() => setEditGame(game)}
                   >
@@ -121,7 +121,7 @@ export function AdminGames() {
                   </button>
                   <button
                     type="button"
-                    className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2"
+                    className="btn-danger min-h-10 flex-1 sm:flex-initial px-4 py-2 text-sm font-bold gap-2 justify-center"
                     title="Удалить"
                     onClick={() => setConfirmDelete(game)}
                   >

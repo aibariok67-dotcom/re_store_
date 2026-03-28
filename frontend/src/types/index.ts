@@ -18,6 +18,8 @@ export interface Game {
   release_date?: string
   nominations?: string
   rating?: number
+  /** Средняя оценка по отзывам пользователей сайта (1–10) */
+  reviews_rating_avg?: number | null
   image_url?: string
   aliases?: string
   categories: Category[]

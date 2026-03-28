@@ -65,7 +65,7 @@ function AppShell() {
     <ThemeProvider>
       <div className="min-h-screen flex flex-col relative">
         <Navbar />
-        <main className="flex-1 relative z-0">
+        <main className="flex-1 relative z-0 w-full min-w-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <Suspense
             fallback={
               <div className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">
@@ -89,7 +89,8 @@ export default function App() {
         <AppShell />
         <Toaster
           theme="dark"
-          position="bottom-right"
+          position="bottom-center"
+          style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))' }}
           toastOptions={{
             classNames: {
               toast:

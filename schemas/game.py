@@ -13,7 +13,12 @@ class GameBase(BaseModel):
     series: Optional[str] = None
     release_date: Optional[date] = None
     nominations: Optional[str] = None
-    rating: Optional[float] = Field(default=None, ge=0, le=10, description="Рейтинг от 0 до 10")
+    rating: Optional[float] = Field(
+        default=None,
+        ge=0,
+        le=10,
+        description="Рейтинг IMDb (внешний), шкала 0–10",
+    )
     image_url: Optional[str] = None
     
 
@@ -56,5 +61,14 @@ class GameResponse(GameBase):
     id: int
     categories: List[CategoryResponse] = []
     platforms: List[PlatformResponse] = []
+    reviews_rating_avg: Optional[float] = Field(
+        default=None,
+        description="Средняя оценка по отзывам пользователей сайта (1–10)",
+    )
 
     model_config = ConfigDict(from_attributes=True)
+
+
+def game_to_response(game, reviews_rating_avg: Optional[float] = None) -> GameResponse:
+    base = GameResponse.model_validate(game)
+    return base.model_copy(update={"reviews_rating_avg": reviews_rating_avg})
