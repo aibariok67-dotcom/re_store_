@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme tokens ── */
+:root,
+[data-theme="indigo"] {
+  --color-primary: 99 102 241;
+  --color-primary-hover: 79 70 229;
+  --color-primary-light: 165 180 252;
+  --color-surface: 20 20 32;
+  --color-surface-2: 14 14 24;
+  --color-border: 48 48 72;
+  --premium-gradient: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c3aed 100%);
+  --premium-glow: rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="sky"] {
+  --color-primary: 14 165 233;
+  --color-primary-hover: 2 132 199;
+  --color-primary-light: 125 211 252;
+  --color-surface: 10 18 30;
+  --color-surface-2: 6 12 22;
+  --color-border: 22 48 70;
+  --premium-gradient: linear-gradient(135deg, #0c4a6e 0%, #0284c7 50%, #0ea5e9 100%);
+  --premium-glow: rgba(14, 165, 233, 0.35);
+}
+
+[data-theme="emerald"] {
+  --color-primary: 16 185 129;
+  --color-primary-hover: 5 150 105;
+  --color-primary-light: 110 231 183;
+  --color-surface: 10 24 18;
+  --color-surface-2: 6 18 12;
+  --color-border: 22 55 40;
+  --premium-gradient: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
+  --premium-glow: rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="rose"] {
+  --color-primary: 244 63 94;
+  --color-primary-hover: 225 29 72;
+  --color-primary-light: 253 164 175;
+  --color-surface: 24 10 16;
+  --color-surface-2: 18 6 12;
+  --color-border: 65 22 35;
+  --premium-gradient: linear-gradient(135deg, #881337 0%, #e11d48 50%, #f43f5e 100%);
+  --premium-glow: rgba(244, 63, 94, 0.35);
+}
+
+/* ── Base ── */
+html {
+  font-size: 16px;
+}
+
+body {
+  color: rgb(228 228 240);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(6 6 12);
+  background-image:
+    radial-gradient(ellipse 100% 70% at 50% -15%, rgb(var(--color-primary) / 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 45% at 95% 20%, rgb(var(--color-primary) / 0.08), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 5% 80%, rgb(var(--color-primary) / 0.06), transparent 45%),
+    linear-gradient(180deg, rgb(10 10 18) 0%, rgb(6 6 12) 45%, rgb(5 5 10) 100%);
+  background-attachment: fixed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(8 8 14);
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border));
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-primary));
+}
+
+/* ── ReactImageCrop ── */
+.ReactCrop__crop-selection {
+  border-color: rgb(var(--color-primary)) !important;
+}
+.ReactCrop__drag-handle::after {
+  background-color: rgb(var(--color-primary)) !important;
+  border-color: rgb(var(--color-primary)) !important;
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-slide-down {
+  animation: slideDown 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Components ── */
+.input {
+  @apply w-full min-h-11 bg-surface-2/90 border border-white/[0.08] rounded-xl px-4 py-3 text-[15px] text-white placeholder-gray-500
+    focus:outline-none focus:border-primary/55 focus:ring-2 focus:ring-primary/20 transition-all duration-200;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-[15px] font-semibold tracking-tight
+    transition-all duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-45 disabled:cursor-not-allowed disabled:active:scale-100;
+}
+
+.btn-primary {
+  @apply btn text-white bg-gradient-to-r from-primary via-primary to-primary-hover
+    shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:brightness-[1.05];
+}
+
+.btn-secondary {
+  @apply btn bg-surface-2/90 border border-white/[0.08] text-gray-200 hover:text-white hover:border-primary/35 hover:bg-surface/80;
+}
+
+.btn-danger {
+  @apply btn bg-red-950/50 border border-red-500/25 hover:bg-red-950/70 text-red-300 hover:text-red-200;
+}
+
+.btn-ghost {
+  @apply btn min-h-10 text-gray-400 hover:text-white hover:bg-white/[0.06];
+}
+
+/* Компактные контролы (чипы, иконки) */
+.btn-icon {
+  @apply inline-flex items-center justify-center min-h-10 min-w-10 rounded-xl border border-white/[0.08] bg-surface-2/80
+    text-gray-400 hover:text-white hover:border-primary/30 transition-all duration-200;
+}
+
+.card {
+  @apply rounded-2xl border border-white/[0.06] bg-surface/95 shadow-xl shadow-black/25 backdrop-blur-sm;
+  background-image: linear-gradient(145deg, rgb(255 255 255 / 0.03) 0%, transparent 42%);
+}
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-tight;
+}
+
+.badge-primary {
+  @apply badge bg-primary/20 text-primary-light border border-primary/25;
+}
+
+.badge-admin {
+  @apply badge bg-amber-500/20 text-amber-300 border border-amber-500/25;
+}
+
+.badge-premium {
+  @apply badge bg-violet-500/20 text-violet-200 border border-violet-400/25;
+}
+
+.badge-banned {
+  @apply badge bg-red-500/20 text-red-300 border border-red-500/25;
+}
+
+/* Навбар «стекло» */
+.nav-shell {
+  @apply border-b border-white/[0.06] bg-surface-2/75 backdrop-blur-2xl backdrop-saturate-150;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 8px 32px rgb(0 0 0 / 0.35);
+}

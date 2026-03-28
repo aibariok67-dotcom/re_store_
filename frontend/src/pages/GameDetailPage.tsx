@@ -1,0 +1,505 @@
+import { useState } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  Star, Calendar, Building2, BookOpen, Heart, ArrowLeft, Trash2, Image as ImageIcon
+} from 'lucide-react'
+import { toast } from 'sonner'
+import { getGame } from '../api/games'
+import { getGameReviews, createReview, deleteReview } from '../api/reviews'
+import { addFavorite, removeFavorite, getFavorites } from '../api/favorites'
+import { uploadImage } from '../api/uploads'
+import { getUploadUrl } from '../api/client'
+import { useAuth } from '../hooks/useAuth'
+import { UserAvatar } from '../components/UserAvatar'
+import { ImageCropperModal } from '../components/ImageCropperModal'
+import { Modal } from '../components/Modal'
+import type { Review } from '../types'
+import { cn } from '../utils/cn'
+import { format } from 'date-fns'
+import { ru } from 'date-fns/locale'
+
+const THEME_RING: Record<string, string> = {
+  indigo: 'ring-indigo-500/40',
+  sky: 'ring-sky-500/40',
+  emerald: 'ring-emerald-500/40',
+  rose: 'ring-rose-500/40',
+}
+
+function CloseIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
+}
+
+export default function GameDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const gameId = Number(id)
+  const { user, isAuthenticated } = useAuth()
+  const qc = useQueryClient()
+  const navigate = useNavigate()
+
+  const [rating, setRating] = useState('')
+  const [text, setText] = useState('')
+  const [reviewImageUrl, setReviewImageUrl] = useState<string>('')
+  const [cropOpen, setCropOpen] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
+  const [imgError, setImgError] = useState(false)
+  const [reviewToDelete, setReviewToDelete] = useState<number | null>(null)
+
+  const { data: game, isLoading: gameLoading } = useQuery({
+    queryKey: ['game', gameId],
+    queryFn: () => getGame(gameId),
+    enabled: !!gameId,
+  })
+
+  const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
+    queryKey: ['reviews', gameId],
+    queryFn: () => getGameReviews(gameId),
+    enabled: !!gameId,
+  })
+
+  const { data: favorites = [] } = useQuery({
+    queryKey: ['favorites'],
+    queryFn: getFavorites,
+    enabled: isAuthenticated,
+  })
+
+  const isFavorite = favorites.some((g) => g.id === gameId)
+
+  const toggleFav = useMutation({
+    mutationFn: () => isFavorite ? removeFavorite(gameId) : addFavorite(gameId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['favorites'] }),
+    onError: () => toast.error('Ошибка'),
+  })
+
+  const submitReview = useMutation({
+    mutationFn: () =>
+      createReview({
+        game_id: gameId,
+        rating: Number(rating),
+        text,
+        image_url: reviewImageUrl || undefined,
+      }),
+    onSuccess: () => {
+      toast.success('Отзыв добавлен')
+      setRating('')
+      setText('')
+      setReviewImageUrl('')
+      qc.invalidateQueries({ queryKey: ['reviews', gameId] })
+      qc.invalidateQueries({ queryKey: ['game', gameId] })
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      toast.error(msg || 'Ошибка отправки отзыва')
+    },
+  })
+
+  const removeReview = useMutation({
+    mutationFn: (rid: number) => deleteReview(rid),
+    onSuccess: () => {
+      toast.success('Отзыв удален')
+      qc.invalidateQueries({ queryKey: ['reviews', gameId] })
+      setReviewToDelete(null)
+    },
+    onError: () => toast.error('Ошибка'),
+  })
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCropFile(file)
+    setCropOpen(true)
+    e.target.value = ''
+  }
+
+  const handleCropDone = async (blob: Blob) => {
+    try {
+      const url = await uploadImage(blob, 'review.jpg')
+      setReviewImageUrl(url)
+      toast.success('Изображение загружено')
+    } catch {
+      toast.error('Ошибка загрузки изображения')
+    }
+  }
+
+  if (gameLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8 animate-pulse">
+        <div className="h-5 bg-surface rounded w-24 mb-6" />
+        <div className="flex gap-8">
+          <div className="w-52 aspect-[3/4] bg-surface rounded-xl flex-shrink-0" />
+          <div className="flex-1 space-y-4">
+            <div className="h-8 bg-surface rounded w-2/3" />
+            <div className="h-4 bg-surface rounded w-1/3" />
+            <div className="h-24 bg-surface rounded" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!game) {
+    return (
+      <div className="text-center py-24 text-gray-500">
+        <p className="text-lg font-semibold text-gray-400">Игра не найдена</p>
+        <button onClick={() => navigate('/')} className="btn-primary mt-4">На главную</button>
+      </div>
+    )
+  }
+
+  const imageUrl = getUploadUrl(game.image_url)
+  const showImage = imageUrl && !imgError
+  const userHasReview = reviews.some((r) => r.user_id === user?.id)
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 min-h-11 px-4 -ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all text-[15px] font-semibold mb-8"
+      >
+        <ArrowLeft size={18} strokeWidth={2} />
+        Все игры
+      </Link>
+
+      <div className="flex flex-col sm:flex-row gap-8 lg:gap-10 mb-12">
+        <div className="w-full sm:w-60 flex-shrink-0">
+          <div className="rounded-2xl overflow-hidden card aspect-[3/4] !p-0 border-white/[0.08] shadow-glow-sm">
+            {showImage ? (
+              <img
+                src={imageUrl}
+                alt={game.title}
+                className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white opacity-10">
+                <svg viewBox="0 0 80 80" fill="none" className="w-16 h-16" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="8" y="22" width="64" height="42" rx="8" stroke="currentColor" strokeWidth="3.5" />
+                  <path d="M25 43h10M30 38v10" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+                  <circle cx="52" cy="42" r="3.5" fill="currentColor" />
+                  <circle cx="60" cy="50" r="3.5" fill="currentColor" />
+                  <path d="M32 14c0-6 16-6 16 0" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+                </svg>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight">{game.title}</h1>
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => toggleFav.mutate()}
+                className={cn(
+                  'flex items-center gap-2 min-h-11 px-5 rounded-xl border transition-all flex-shrink-0 text-[15px] font-semibold',
+                  isFavorite
+                    ? 'bg-red-500/15 border-red-500/35 text-red-400'
+                    : 'border-white/[0.1] text-gray-300 hover:border-red-500/35 hover:text-red-400 hover:bg-red-500/5'
+                )}
+              >
+                <Heart size={18} strokeWidth={2} className={cn(isFavorite && 'fill-red-400')} />
+                {isFavorite ? 'В избранном' : 'В избранное'}
+              </button>
+            )}
+          </div>
+
+          {/* Rating */}
+          {game.rating !== undefined && game.rating !== null && (
+            <div className="flex items-center gap-2 mb-5">
+              <div className="flex items-center gap-2.5 bg-amber-500/10 border border-amber-400/25 rounded-xl px-4 py-2.5">
+                <Star size={18} className="text-amber-400 fill-amber-400" strokeWidth={2} />
+                <span className="text-xl font-extrabold text-white">{game.rating}</span>
+                <span className="text-sm text-gray-500 font-medium">/ 10</span>
+              </div>
+            </div>
+          )}
+
+          {/* Genres & platforms */}
+          {game.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {game.categories.map((c) => (
+                <span key={c.id} className="badge-primary">{c.name}</span>
+              ))}
+            </div>
+          )}
+          {game.platforms.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              {game.platforms.map((p) => (
+                <span key={p.id} className="badge bg-surface-2 border border-border text-gray-400">{p.name}</span>
+              ))}
+            </div>
+          )}
+
+          {/* Meta */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-5">
+            {game.developer && (
+              <div className="flex items-center gap-2.5">
+                <Building2 size={14} className="text-gray-600 flex-shrink-0" />
+                <span className="text-gray-500">Разработчик</span>
+                <span className="text-white font-medium truncate">{game.developer}</span>
+              </div>
+            )}
+            {game.publisher && (
+              <div className="flex items-center gap-2.5">
+                <Building2 size={14} className="text-gray-600 flex-shrink-0" />
+                <span className="text-gray-500">Издатель</span>
+                <span className="text-white font-medium truncate">{game.publisher}</span>
+              </div>
+            )}
+            {game.release_date && (
+              <div className="flex items-center gap-2.5">
+                <Calendar size={14} className="text-gray-600 flex-shrink-0" />
+                <span className="text-gray-500">Дата выхода</span>
+                <span className="text-white font-medium">{game.release_date}</span>
+              </div>
+            )}
+            {game.series && (
+              <div className="flex items-center gap-2.5">
+                <BookOpen size={14} className="text-gray-600 flex-shrink-0" />
+                <span className="text-gray-500">Серия</span>
+                <span className="text-white font-medium truncate">{game.series}</span>
+              </div>
+            )}
+          </div>
+
+          {game.description && (
+            <p className="text-gray-400 text-sm leading-relaxed">{game.description}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Reviews section */}
+      <div>
+        <div className="flex items-center gap-3 mb-5">
+          <h2 className="text-xl font-extrabold text-white">Отзывы</h2>
+          <span className="text-xs font-semibold text-gray-500 bg-surface-2 px-2.5 py-1 rounded-lg border border-border">
+            {reviews.length}
+          </span>
+        </div>
+
+        {/* Review form */}
+        {isAuthenticated && !userHasReview && (
+          <div className="card p-6 sm:p-7 mb-8 border-white/[0.08]">
+            <h3 className="text-base font-bold text-white mb-5">Написать отзыв</h3>
+            <form
+              onSubmit={(e) => { e.preventDefault(); submitReview.mutate() }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Оценка (1-10)</label>
+                <input
+                  type="number"
+                  className="input w-28"
+                  min={1}
+                  max={10}
+                  step={0.1}
+                  placeholder="8.5"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Ваш отзыв</label>
+                <textarea
+                  className="input min-h-24 resize-none"
+                  placeholder="Поделитесь впечатлениями..."
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Image upload */}
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-xs text-gray-500 hover:text-primary-light cursor-pointer transition-colors font-medium">
+                  <ImageIcon size={14} />
+                  Прикрепить картинку
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+                </label>
+                {reviewImageUrl && (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={getUploadUrl(reviewImageUrl)}
+                      className="h-8 w-8 rounded object-cover"
+                      alt=""
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                    <button
+                      type="button"
+                      className="text-red-400 hover:text-red-300 text-xs"
+                      onClick={() => setReviewImageUrl('')}
+                    >
+                      <CloseIcon size={13} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <button type="submit" className="btn-primary" disabled={submitReview.isPending}>
+                {submitReview.isPending ? 'Отправляю...' : 'Отправить'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {userHasReview && (
+          <div className="text-sm text-gray-500 mb-5 font-medium">Вы уже оставили отзыв на эту игру</div>
+        )}
+
+        {/* Reviews list */}
+        {reviewsLoading ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="card p-4 animate-pulse flex gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-surface-2" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-surface-2 rounded w-1/4" />
+                  <div className="h-3 bg-surface-2 rounded w-3/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : reviews.length === 0 ? (
+          <div className="text-center py-14 text-gray-600">
+            <p className="font-medium">Отзывов пока нет. Будьте первым!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {reviews.map((review) => (
+              <ReviewCard
+                key={review.id}
+                review={review}
+                currentUserId={user?.id}
+                isAdmin={user?.is_admin}
+                onRequestDelete={setReviewToDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Modal
+        open={reviewToDelete !== null}
+        onClose={() => setReviewToDelete(null)}
+        title="Вы уверены?"
+        size="sm"
+      >
+        <p className="text-gray-300 text-sm mb-5">
+          Удалить этот отзыв? Действие нельзя отменить.
+        </p>
+        <div className="flex gap-3 justify-end">
+          <button type="button" className="btn-secondary" onClick={() => setReviewToDelete(null)}>
+            Отмена
+          </button>
+          <button
+            type="button"
+            className="btn-danger"
+            disabled={removeReview.isPending}
+            onClick={() => reviewToDelete !== null && removeReview.mutate(reviewToDelete)}
+          >
+            {removeReview.isPending ? 'Удаляю…' : 'Удалить'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Image cropper for review */}
+      {cropFile && (
+        <ImageCropperModal
+          open={cropOpen}
+          file={cropFile}
+          onClose={() => { setCropOpen(false); setCropFile(null) }}
+          onDone={handleCropDone}
+          aspect={16 / 9}
+        />
+      )}
+    </div>
+  )
+}
+
+function ReviewCard({
+  review,
+  currentUserId,
+  isAdmin,
+  onRequestDelete,
+}: {
+  review: Review
+  currentUserId?: number
+  isAdmin?: boolean
+  onRequestDelete: (id: number) => void
+}) {
+  const themeRing = review.is_premium && review.premium_theme
+    ? THEME_RING[review.premium_theme] || THEME_RING.indigo
+    : ''
+
+  return (
+    <div
+      className={cn(
+        'card p-4 flex gap-3.5',
+        review.is_premium && `ring-1 ${themeRing}`
+      )}
+    >
+      <Link to={`/users/${review.user_id}`} className="flex-shrink-0">
+        <UserAvatar
+          user={{
+            username: review.username,
+            avatar_url: review.avatar_url,
+            is_premium: review.is_premium ?? false,
+            premium_theme: review.premium_theme ?? 'indigo',
+          }}
+          size={40}
+          className="hover:ring-2 hover:ring-primary/40 transition-all"
+        />
+      </Link>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/users/${review.user_id}`}
+              className="text-sm font-semibold text-white hover:text-primary-light transition-colors"
+            >
+              {review.username}
+            </Link>
+            {review.is_premium && (
+              <span className="badge-premium text-[10px]">PREMIUM</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center gap-1 text-sm font-bold text-yellow-400">
+              <Star size={12} className="fill-yellow-400" />
+              {review.rating}
+            </span>
+            {(currentUserId === review.user_id || isAdmin) && (
+              <button
+                type="button"
+                onClick={() => onRequestDelete(review.id)}
+                className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-950/30"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="text-sm text-gray-300 leading-relaxed">{review.text}</p>
+        {review.image_url && (
+          <img
+            src={getUploadUrl(review.image_url)}
+            alt=""
+            className="mt-2.5 rounded-lg max-h-48 object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        )}
+        <p className="text-xs text-gray-600 mt-2.5 font-medium">
+          {format(new Date(review.created_at), 'd MMM yyyy', { locale: ru })}
+        </p>
+      </div>
+    </div>
+  )
+}

@@ -25,6 +25,8 @@ class UserCreate(BaseModel):
     def validate_password(cls, v):
         if len(v) < 6:
             raise ValueError("Пароль минимум 6 символов")
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("Пароль слишком длинный (максимум 72 символа)")
         return v
 
 
@@ -96,4 +98,6 @@ class UpdateMeRequest(BaseModel):
             return v
         if len(v) < 6:
             raise ValueError("Пароль минимум 6 символов")
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("Пароль слишком длинный (максимум 72 символа)")
         return v

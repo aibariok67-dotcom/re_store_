@@ -26,11 +26,11 @@ async def get_current_user(
     if user is None:
         raise UserNotFound()
 
-    # Проверяем бан прямо здесь — забаненный не пройдёт ни один защищённый эндпоинт
+    from datetime import datetime, timezone
     if user.is_banned:
-        from datetime import datetime, timezone
-        if user.banned_until is None or user.banned_until > datetime.now(timezone.utc):
-            raise UserBanned()
+        raise UserBanned()
+    if user.banned_until and user.banned_until > datetime.now(timezone.utc):
+        raise UserBanned()
 
     return user
 

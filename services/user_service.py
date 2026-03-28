@@ -21,6 +21,10 @@ async def register_user(db: AsyncSession, data: UserCreate) -> User:
     if existing_user:
         raise ValueError("Пользователь с таким email уже существует")
 
+    existing_username = await get_user_by_username(db, data.username)
+    if existing_username:
+        raise ValueError("Пользователь с таким никнеймом уже существует")
+
     hashed = hash_password(data.password)
 
     user = User(
