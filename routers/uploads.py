@@ -8,6 +8,7 @@ from core.exceptions import BadRequest
 from core.limiter import limiter
 from core.logging_config import get_logger
 from core.config import settings
+from cloudinary import CloudinaryImage
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 logger = get_logger(__name__)
@@ -45,8 +46,16 @@ async def upload_image(
         folder="re_store",
     )
 
-    url = result["secure_url"]
+    optimized_url = CloudinaryImage(result["public_id"]).build_url(
+        secure=True,
+        fetch_format="auto",
+        quality="auto",
+        width=1200,
+        crop="limit",
+    )
 
-    logger.info(f"Загружено изображение в cloudinary: {url} by={current_user.username}")
+    logger.info(
+        f"Загружено изображение в cloudinary: {optimized_url} by={current_user.username}"
+    )
 
-    return {"url": url}
+    return {"url": optimized_url}
