@@ -12,6 +12,9 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "http://localhost:5173"
     UPLOAD_DIR: str = str(BASE_DIR / "uploads")
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
