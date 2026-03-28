@@ -8,7 +8,8 @@ export function useAuth() {
   const { token, user, setUser, logout } = useAuthStore()
 
   const { data, isLoading, error } = useQuery<User>({
-    queryKey: ['me', token],
+    // Должен совпадать с setQueryData(['me'], …) в Premium / Profile и т.д.
+    queryKey: ['me'],
     queryFn: getMe,
     enabled: !!token,
     retry: false,
