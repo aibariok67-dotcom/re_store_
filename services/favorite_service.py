@@ -1,5 +1,8 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
+from core.db_integrity import is_unique_violation
 from models.favorite import Favorite
 from models.game import Game
 from core.exceptions import GameNotFound, AlreadyFavorited, NotFound
@@ -18,8 +21,14 @@ async def add_favorite(db, user_id, game_id):
 
     favorite = Favorite(user_id=user_id, game_id=game_id)
     db.add(favorite)
-    await db.commit()
-    await db.refresh(favorite)
+    try:
+        await db.commit()
+        await db.refresh(favorite)
+    except IntegrityError as e:
+        await db.rollback()
+        if not is_unique_violation(e):
+            raise
+        raise AlreadyFavorited() from e
     return favorite
 
 async def remove_favorite(db, user_id, game_id):

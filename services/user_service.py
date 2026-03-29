@@ -1,10 +1,26 @@
+from typing import NoReturn
+
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
+
+from core.datetime_utils import utc_now
+from core.db_integrity import is_unique_violation
+from core.exceptions import AlreadyExists, EmailTaken, UsernameTaken
+from core.security import hash_password, verify_password, create_access_token
 from models.user import User
 from models.review import Review
 from models.favorite import Favorite
 from schemas.user import UserCreate
-from core.security import hash_password, verify_password, create_access_token
+
+
+def _raise_register_integrity_error(exc: IntegrityError) -> NoReturn:
+    msg = str(getattr(exc, "orig", None) or exc).lower()
+    if "email" in msg or "users_email" in msg:
+        raise EmailTaken() from exc
+    if "username" in msg or "users_username" in msg:
+        raise UsernameTaken() from exc
+    raise AlreadyExists("Пользователь") from exc
 
 async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     result = await db.execute(select(User).where(User.email == email))
@@ -36,13 +52,17 @@ async def register_user(db: AsyncSession, data: UserCreate) -> User:
     )
 
     db.add(user)
-    await db.commit()
-    await db.refresh(user)
+    try:
+        await db.commit()
+        await db.refresh(user)
+    except IntegrityError as e:
+        await db.rollback()
+        if not is_unique_violation(e):
+            raise
+        _raise_register_integrity_error(e)
     return user
 
 async def login_user(db: AsyncSession, email: str, password: str) -> str:
-    from datetime import datetime, timezone
-
     # Пробуем найти по email, если не нашли — ищем по username
     user = await get_user_by_email(db, email)
     if not user:
@@ -56,7 +76,7 @@ async def login_user(db: AsyncSession, email: str, password: str) -> str:
     if user.is_banned:
         raise ValueError("Ваш аккаунт заблокирован навсегда")
 
-    if user.banned_until and user.banned_until > datetime.now(timezone.utc):
+    if user.banned_until and user.banned_until > utc_now():
         raise ValueError(f"Ваш аккаунт заблокирован до {user.banned_until.strftime('%d.%m.%Y %H:%M')}")
 
     token = create_access_token({"sub": str(user.id)})
@@ -76,8 +96,17 @@ async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
     if "password" in data and data["password"]:
         user.hashed_password = hash_password(data["password"])
 
-    await db.commit()
-    await db.refresh(user)
+    try:
+        await db.commit()
+        await db.refresh(user)
+    except IntegrityError as e:
+        await db.rollback()
+        if not is_unique_violation(e):
+            raise
+        msg = str(getattr(e, "orig", None) or e).lower()
+        if "username" in msg or "users_username" in msg:
+            raise UsernameTaken() from e
+        raise AlreadyExists("Пользователь") from e
     return user
 
 

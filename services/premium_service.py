@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from models.user import User
+from core.datetime_utils import utc_now
 from core.exceptions import PermissionDenied
+from models.user import User
 
 from schemas.premium import PremiumProfileUpdate
 
@@ -17,7 +16,7 @@ def _is_active_premium(user: User) -> bool:
         return False
     if user.premium_until is None:
         return True
-    return user.premium_until > datetime.now(timezone.utc)
+    return user.premium_until > utc_now()
 
 
 async def buy_premium(db: AsyncSession, user_id: int) -> User:

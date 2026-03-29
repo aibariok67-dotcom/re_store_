@@ -1,5 +1,8 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
+from core.db_integrity import is_unique_violation
 from models.review import Review
 from schemas.review import ReviewCreate
 from core.exceptions import ReviewNotFound, AlreadyReviewed, PermissionDenied
@@ -51,8 +54,14 @@ async def create_review(db: AsyncSession, data: ReviewCreate, user_id: int) -> R
         image_url=data.image_url
     )
     db.add(review)
-    await db.commit()
-    await db.refresh(review)
+    try:
+        await db.commit()
+        await db.refresh(review)
+    except IntegrityError as e:
+        await db.rollback()
+        if not is_unique_violation(e):
+            raise
+        raise AlreadyReviewed() from e
     return review
 
 async def delete_review(db: AsyncSession, review_id: int, user_id: int, is_admin: bool):

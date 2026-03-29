@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import APIRouter, UploadFile, File, Depends, Request
 from core.dependencies import get_current_user
+from models.user import User
 from core.exceptions import BadRequest
 from core.limiter import limiter
 from core.logging_config import get_logger
@@ -29,7 +30,7 @@ MAX_SIZE = 5 * 1024 * 1024
 async def upload_image(
     request: Request,
     file: UploadFile = File(...),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     if file.content_type not in ALLOWED_TYPES:
         raise BadRequest("Только JPEG, PNG, WEBP")

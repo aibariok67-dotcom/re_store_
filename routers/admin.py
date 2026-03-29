@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from datetime import datetime, timezone
+from datetime import datetime
 
 from core.database import get_db
+from core.datetime_utils import ensure_utc, utc_now
 from core.dependencies import get_current_admin
 from core.exceptions import UserNotFound, BadRequest, PermissionDenied
 from core.logging_config import get_logger
@@ -18,7 +19,7 @@ logger = get_logger(__name__)
 @router.get("/users", response_model=list[UserResponse])
 async def get_all_users(
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     result = await db.execute(select(User))
     return result.scalars().all()
@@ -28,7 +29,7 @@ async def get_all_users(
 async def ban_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -51,7 +52,7 @@ async def ban_user_temp(
     user_id: int,
     banned_until: datetime,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -60,22 +61,25 @@ async def ban_user_temp(
         raise UserNotFound()
     if user.is_admin:
         raise PermissionDenied("Нельзя забанить админа")
-    if banned_until <= datetime.now(timezone.utc):
+    banned_until_utc = ensure_utc(banned_until)
+    if banned_until_utc <= utc_now():
         raise BadRequest("Дата бана должна быть в будущем")
 
     user.is_banned = False
-    user.banned_until = banned_until
+    user.banned_until = banned_until_utc
     await db.commit()
 
-    logger.warning(f"Бан (до {banned_until}): {user.username} (ID={user_id}) — админ {current_user.username}")
-    return {"detail": f"Пользователь {user.username} забанен до {banned_until}"}
+    logger.warning(
+        f"Бан (до {banned_until_utc}): {user.username} (ID={user_id}) — админ {current_user.username}"
+    )
+    return {"detail": f"Пользователь {user.username} забанен до {banned_until_utc}"}
 
 
 @router.post("/users/{user_id}/unban")
 async def unban_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -95,7 +99,7 @@ async def unban_user(
 async def delete_user_admin(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin),
+    current_user: User = Depends(get_current_admin),
 ):
     if user_id == current_user.id:
         raise PermissionDenied("Нельзя удалить свою учётную запись")

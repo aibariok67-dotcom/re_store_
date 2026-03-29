@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from core.database import get_db
 from core.dependencies import get_current_user
+from models.user import User
 from core.exceptions import BadRequest, UserNotFound, InvalidCredentials, UserBanned
 from core.logging_config import get_logger
 from core.limiter import limiter
@@ -46,7 +47,7 @@ async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(ge
 
 
 @router.get("/me", response_model=UserResponse)
-async def me(current_user=Depends(get_current_user)):
+async def me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
@@ -54,7 +55,7 @@ async def me(current_user=Depends(get_current_user)):
 async def update_me(
     data: UpdateMeRequest,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     updated = await update_user(db, current_user.id, data.model_dump(exclude_none=True))
     logger.info(f"Профиль обновлён: {current_user.username}")

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.dependencies import get_current_admin
+from models.user import User
 from services import game_service
 from schemas.game import GamePatch, GameResponse, GameCreate, GameUpdate, game_to_response
 from core.logging_config import get_logger
@@ -44,7 +45,7 @@ async def get_game(game_id: int, db: AsyncSession = Depends(get_db)):
 async def create_game(
     game: GameCreate,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     game = await game_service.create_game(db, game)
     return game_to_response(game, None)
@@ -58,7 +59,7 @@ async def update_game(
     game_id: int,
     game: GameUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     game_orm = await game_service.update_game(db, game_id, game)
     _, avg = await game_service.get_game_with_review_avg(db, game_id)
@@ -70,7 +71,7 @@ async def patch_game(
     game_id: int,
     game: GamePatch,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     game_orm = await game_service.patch_game(db, game_id, game)
     _, avg = await game_service.get_game_with_review_avg(db, game_id)
@@ -81,7 +82,7 @@ async def patch_game(
 async def delete_game(
     game_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
     game_orm, reviews_avg = await game_service.delete_game(db, game_id)
     return game_to_response(game_orm, reviews_avg)

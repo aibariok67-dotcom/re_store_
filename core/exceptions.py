@@ -78,3 +78,13 @@ class AlreadyFavorited(AlreadyExists):
 class AlreadyReviewed(AlreadyExists):
     def __init__(self):
         super().__init__("Отзыв на эту игру")
+
+
+class CategoryNameTaken(AlreadyExists):
+    def __init__(self):
+        super().__init__("Категория с таким названием")
+
+
+class PlatformNameTaken(AlreadyExists):
+    def __init__(self):
+        super().__init__("Платформа с таким названием")

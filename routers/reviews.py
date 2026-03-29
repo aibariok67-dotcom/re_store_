@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core.dependencies import get_current_user
+from models.user import User
 from core.exceptions import ReviewNotFound
 from core.limiter import limiter
 from core.logging_config import get_logger
@@ -16,7 +17,10 @@ async def get_reviews_by_game(game_id: int, db: AsyncSession = Depends(get_db)):
     return await review_service.get_reviews_by_game(db, game_id)
 
 @router.get("/my")
-async def get_my_reviews(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+async def get_my_reviews(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     return await review_service.get_reviews_by_user(db, current_user.id)
 
 @router.get("/user/{user_id}")
@@ -37,7 +41,7 @@ async def create_review(
     request: Request,
     data: ReviewCreate,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     review = await review_service.create_review(db, data, current_user.id)
     logger.info(f"Новый отзыв: user={current_user.username} game_id={data.game_id}")
@@ -47,7 +51,7 @@ async def create_review(
 async def delete_review(
     review_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     review = await review_service.delete_review(db, review_id, current_user.id, current_user.is_admin)
     logger.info(f"Отзыв удалён: id={review_id} by={current_user.username}")

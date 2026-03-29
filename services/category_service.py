@@ -1,6 +1,10 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException
+
+from core.db_integrity import is_unique_violation
+from core.exceptions import CategoryNameTaken
 from models.category import Category
 from schemas.category import CategoryCreate, CategoryUpdate
 
@@ -18,16 +22,28 @@ async def get_category(db: AsyncSession, category_id: int):
 async def create_category(db: AsyncSession, category: CategoryCreate):
     new_category = Category(**category.model_dump())
     db.add(new_category)
-    await db.commit()
-    await db.refresh(new_category)
+    try:
+        await db.commit()
+        await db.refresh(new_category)
+    except IntegrityError as e:
+        await db.rollback()
+        if not is_unique_violation(e):
+            raise
+        raise CategoryNameTaken() from e
     return new_category
 
 async def update_category(db: AsyncSession, category_id: int, category_data: CategoryUpdate):
     category = await get_category(db, category_id)
     for field, value in category_data.model_dump().items():
         setattr(category, field, value)
-    await db.commit()
-    await db.refresh(category)
+    try:
+        await db.commit()
+        await db.refresh(category)
+    except IntegrityError as e:
+        await db.rollback()
+        if not is_unique_violation(e):
+            raise
+        raise CategoryNameTaken() from e
     return category
 
 async def delete_category(db: AsyncSession, category_id: int):
