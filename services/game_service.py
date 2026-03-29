@@ -189,14 +189,6 @@ async def delete_game(db: AsyncSession, game_id: int):
     game = await _load_game(db, game_id)
     reviews_avg = await _review_avg_for_game(db, game_id)
 
-    # Сначала удаляем все отзывы и избранное этой игры
-    from models.review import Review
-    from models.favorite import Favorite
-    from sqlalchemy import delete
-    
-    await db.execute(delete(Review).where(Review.game_id == game_id))
-    await db.execute(delete(Favorite).where(Favorite.game_id == game_id))
-    
     await db.delete(game)
     await db.commit()
     return game, reviews_avg

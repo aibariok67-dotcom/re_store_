@@ -10,7 +10,7 @@ from core.exceptions import UserNotFound, BadRequest, PermissionDenied
 from core.logging_config import get_logger
 from models.user import User
 from schemas.user import UserResponse
-from services.user_service import delete_user_cascade
+from services.user_service import delete_user
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 logger = get_logger(__name__)
@@ -112,6 +112,6 @@ async def delete_user_admin(
         raise PermissionDenied("Нельзя удалить администратора")
 
     username = user.username
-    await delete_user_cascade(db, user)
+    await delete_user(db, user)
     logger.warning(f"Удалён пользователь: {username} (ID={user_id}) — админ {current_user.username}")
     return {"detail": f"Пользователь {username} удалён вместе с отзывами и избранным"}

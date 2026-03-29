@@ -12,6 +12,18 @@ class BadRequest(AppException):
         super().__init__(400, detail)
 
 
+# ── 413 Payload Too Large ────────────────────────────────────────────────────
+class PayloadTooLarge(AppException):
+    def __init__(self, detail: str = "Файл слишком большой"):
+        super().__init__(413, detail)
+
+
+# ── 503 Service Unavailable (внешние сервисы) ───────────────────────────────
+class UploadFailed(AppException):
+    def __init__(self, detail: str = "Не удалось загрузить файл. Попробуйте позже"):
+        super().__init__(503, detail)
+
+
 # ── 401 Unauthorized ─────────────────────────────────────────────────────────
 class InvalidToken(AppException):
     def __init__(self):

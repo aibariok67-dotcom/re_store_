@@ -2,15 +2,13 @@ from typing import NoReturn
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select
 
 from core.datetime_utils import utc_now
 from core.db_integrity import is_unique_violation
 from core.exceptions import AlreadyExists, EmailTaken, UsernameTaken
 from core.security import hash_password, verify_password, create_access_token
 from models.user import User
-from models.review import Review
-from models.favorite import Favorite
 from schemas.user import UserCreate
 
 
@@ -110,10 +108,7 @@ async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
     return user
 
 
-async def delete_user_cascade(db: AsyncSession, user: User) -> None:
-    """Удалить пользователя вместе с отзывами и избранным (обход FK)."""
-    uid = user.id
-    await db.execute(delete(Review).where(Review.user_id == uid))
-    await db.execute(delete(Favorite).where(Favorite.user_id == uid))
+async def delete_user(db: AsyncSession, user: User) -> None:
+    """Удалить пользователя; отзывы и избранное удаляются каскадом в БД."""
     await db.delete(user)
     await db.commit()

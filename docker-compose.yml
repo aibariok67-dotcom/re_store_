@@ -1,3 +1,7 @@
+# Локальная разработка: после первого поднятия БД выполните миграции явно (один раз):
+#   docker compose run --rm backend alembic upgrade head
+# Backend при старте не вызывает alembic — ближе к прод-практике (миграции — отдельный шаг).
+
 services:
   db:
     image: postgres:16
