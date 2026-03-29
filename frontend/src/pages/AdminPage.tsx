@@ -71,7 +71,7 @@ export default function AdminPage() {
       </div>
 
       {/* Tab content */}
-      <div className="card p-6 sm:p-8 border-white/[0.08]">
+      <div className="card p-4 sm:p-6 md:p-8 border-white/[0.08] max-sm:!backdrop-blur-none">
         {tab === 'games' && <AdminGames />}
 
         {tab === 'create' && (

@@ -134,53 +134,57 @@ export function AdminUsers() {
               <div
                 key={u.id}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-3 rounded-xl border transition-colors',
+                  'flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3 px-3 py-3 rounded-xl border transition-colors',
                   banned
                     ? 'bg-red-950/20 border-red-800/30'
                     : 'bg-surface-2 border-border'
                 )}
               >
-                <Link to={`/users/${u.id}`}>
-                  <UserAvatar user={u} size={40} />
-                </Link>
+                <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <Link to={`/users/${u.id}`} className="shrink-0">
+                    <UserAvatar user={u} size={40} />
+                  </Link>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <Link
-                      to={`/users/${u.id}`}
-                      className="text-sm font-medium text-white hover:text-primary-light transition-colors"
-                    >
-                      {u.username}
-                    </Link>
-                    {u.is_admin && (
-                      <span className="badge-admin">
-                        <Shield size={9} className="mr-0.5" />
-                        ADMIN
-                      </span>
-                    )}
-                    {u.is_premium && !u.is_admin && (
-                      <span className="badge-premium text-xs">PREM</span>
-                    )}
-                    {banned && (
-                      <span className="badge-banned">
-                        <Ban size={9} className="mr-0.5" />
-                        БАН
-                      </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white break-words">
+                      <Link
+                        to={`/users/${u.id}`}
+                        className="hover:text-primary-light transition-colors"
+                      >
+                        {u.username}
+                      </Link>
+                    </p>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      {u.is_admin && (
+                        <span className="badge-admin shrink-0">
+                          <Shield size={9} className="mr-0.5" />
+                          ADMIN
+                        </span>
+                      )}
+                      {u.is_premium && !u.is_admin && (
+                        <span className="badge-premium text-xs shrink-0">PREM</span>
+                      )}
+                      {banned && (
+                        <span className="badge-banned shrink-0">
+                          <Ban size={9} className="mr-0.5" />
+                          БАН
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 break-all mt-1">{u.email}</p>
+                    {banInfo && (
+                      <p className="text-xs text-red-400/80 mt-0.5">{banInfo}</p>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">{u.email}</p>
-                  {banInfo && (
-                    <p className="text-xs text-red-400/80 mt-0.5">{banInfo}</p>
-                  )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-end gap-2 flex-shrink-0">
+                <div className="flex flex-wrap items-stretch sm:items-center justify-start sm:justify-end gap-2 w-full sm:w-auto sm:flex-shrink-0">
                   {!u.is_admin && (
                     <>
                       {banned ? (
                         <button
                           type="button"
-                          className="btn-primary min-h-10 px-4 py-2 text-sm font-bold gap-2 shadow-md shadow-primary/15"
+                          className="btn-primary min-h-10 px-4 py-2 text-sm font-bold gap-2 shadow-md shadow-primary/15 flex-1 min-w-[9rem] sm:flex-initial justify-center"
                           onClick={() => unbanMut.mutate(u.id)}
                           title="Разбанить"
                           disabled={unbanMut.isPending}
@@ -192,7 +196,7 @@ export function AdminUsers() {
                         <>
                           <button
                             type="button"
-                            className="btn-secondary min-h-10 px-4 py-2 text-sm font-bold gap-2 border-amber-500/30 text-amber-200 hover:border-amber-400/50 hover:bg-amber-500/10"
+                            className="btn-secondary min-h-10 px-4 py-2 text-sm font-bold gap-2 border-amber-500/30 text-amber-200 hover:border-amber-400/50 hover:bg-amber-500/10 flex-1 min-w-[9rem] sm:flex-initial justify-center"
                             title="Бан на время"
                             onClick={() => { setBanModal({ user: u, type: 'temp' }); setTempDate('') }}
                           >
@@ -201,7 +205,7 @@ export function AdminUsers() {
                           </button>
                           <button
                             type="button"
-                            className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2"
+                            className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 flex-1 min-w-[9rem] sm:flex-initial justify-center"
                             title="Постоянный бан"
                             onClick={() => setBanModal({ user: u, type: 'perm' })}
                           >
@@ -213,7 +217,7 @@ export function AdminUsers() {
                       {currentUser?.id !== u.id && (
                         <button
                           type="button"
-                          className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 border-red-600/40"
+                          className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 border-red-600/40 flex-1 min-w-[9rem] sm:flex-initial justify-center"
                           title="Удалить пользователя и все связанные данные"
                           onClick={() => setDeleteTarget(u)}
                           disabled={deleteMut.isPending}

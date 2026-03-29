@@ -56,7 +56,14 @@ export interface GamesListParams {
   order?: 'asc' | 'desc'
 }
 
-export type PremiumTheme = 'indigo' | 'sky' | 'emerald' | 'rose'
+export type PremiumTheme =
+  | 'indigo'
+  | 'sky'
+  | 'emerald'
+  | 'rose'
+  | 'amber'
+  | 'violet'
+  | 'cyan'
 
 export interface User {
   id: number

@@ -56,7 +56,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
 
       {/* Add form */}
       <form
-        className="flex gap-2 mb-6"
+        className="flex flex-col gap-2 sm:flex-row sm:items-stretch mb-6"
         onSubmit={(e) => { e.preventDefault(); if (newName.trim()) createMut.mutate() }}
       >
         <input
@@ -67,7 +67,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
         />
         <button
           type="submit"
-          className="btn-primary min-h-11 px-6 text-[15px] font-bold shrink-0"
+          className="btn-primary min-h-11 px-6 text-[15px] font-bold shrink-0 w-full sm:w-auto justify-center"
           disabled={!newName.trim() || createMut.isPending}
         >
           <Plus size={18} strokeWidth={2} />
@@ -80,12 +80,12 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex flex-wrap items-center gap-2 sm:gap-3 px-4 py-3 bg-surface-2 rounded-xl border border-border"
+            className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center px-3 sm:px-4 py-3 bg-surface-2 rounded-xl border border-border"
           >
             {editId === item.id ? (
               <>
                 <input
-                  className="input flex-1 py-1"
+                  className="input flex-1 min-w-0 py-1 w-full sm:w-auto"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   autoFocus
@@ -94,43 +94,47 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
                     if (e.key === 'Escape') setEditId(null)
                   }}
                 />
-                <button
-                  type="button"
-                  className="btn-primary min-h-10 px-4 py-2 text-sm"
-                  onClick={() => updateMut.mutate({ id: item.id, name: editName })}
-                >
-                  <Check size={16} strokeWidth={2} />
-                  Сохранить
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary min-h-10 px-4 py-2 text-sm"
-                  onClick={() => setEditId(null)}
-                >
-                  <X size={16} strokeWidth={2} />
-                  Отмена
-                </button>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    className="btn-primary min-h-10 px-4 py-2 text-sm flex-1 sm:flex-initial justify-center"
+                    onClick={() => updateMut.mutate({ id: item.id, name: editName })}
+                  >
+                    <Check size={16} strokeWidth={2} />
+                    Сохранить
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary min-h-10 px-4 py-2 text-sm flex-1 sm:flex-initial justify-center"
+                    onClick={() => setEditId(null)}
+                  >
+                    <X size={16} strokeWidth={2} />
+                    Отмена
+                  </button>
+                </div>
               </>
             ) : (
               <>
-                <span className="flex-1 text-sm text-white font-medium">{item.name}</span>
-                <button
-                  type="button"
-                  className="btn-secondary min-h-10 px-4 py-2 text-sm font-semibold gap-2"
-                  onClick={() => { setEditId(item.id); setEditName(item.name) }}
-                >
-                  <Pencil size={16} strokeWidth={2} />
-                  Изменить
-                </button>
-                <button
-                  type="button"
-                  className="btn-danger min-h-10 px-4 py-2 text-sm font-semibold gap-2"
-                  onClick={() => setPendingDelete({ id: item.id, name: item.name })}
-                  disabled={deleteMut.isPending}
-                >
-                  <Trash2 size={16} strokeWidth={2} />
-                  Удалить
-                </button>
+                <span className="flex-1 min-w-0 text-sm text-white font-medium">{item.name}</span>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:justify-end">
+                  <button
+                    type="button"
+                    className="btn-secondary min-h-10 px-4 py-2 text-sm font-semibold gap-2 flex-1 sm:flex-initial justify-center"
+                    onClick={() => { setEditId(item.id); setEditName(item.name) }}
+                  >
+                    <Pencil size={16} strokeWidth={2} />
+                    Изменить
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-danger min-h-10 px-4 py-2 text-sm font-semibold gap-2 flex-1 sm:flex-initial justify-center"
+                    onClick={() => setPendingDelete({ id: item.id, name: item.name })}
+                    disabled={deleteMut.isPending}
+                  >
+                    <Trash2 size={16} strokeWidth={2} />
+                    Удалить
+                  </button>
+                </div>
               </>
             )}
           </div>

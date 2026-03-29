@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 
-PREMIUM_THEMES = {"indigo", "sky", "emerald", "rose"}
+PREMIUM_THEMES = {"indigo", "sky", "emerald", "rose", "amber", "violet", "cyan"}
 
 
 class PremiumBuyRequest(BaseModel):

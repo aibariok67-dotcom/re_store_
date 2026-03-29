@@ -47,13 +47,13 @@ export default function UserProfilePage() {
   if (isLoading) {
     return (
       <div className="max-w-[1440px] mx-auto px-4 py-8 animate-pulse">
-        <div className="card overflow-hidden max-w-4xl mx-auto">
+        <div className="card overflow-hidden max-w-4xl mx-auto !p-0">
           <div className="h-[clamp(7.5rem,20vw,15rem)] sm:h-[clamp(8.5rem,22vw,17rem)] bg-surface-2" />
-          <div className="p-6 flex gap-4 -mt-10">
-            <div className="w-20 h-20 rounded-2xl bg-surface-2 ring-4 ring-surface" />
-            <div className="flex-1 space-y-3 pt-6">
-              <div className="h-6 bg-surface-2 rounded w-1/3" />
-              <div className="h-4 bg-surface-2 rounded w-1/4" />
+          <div className="px-5 sm:px-8 pb-6 flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-14 relative">
+            <div className="w-20 h-20 rounded-2xl bg-surface-2 ring-4 ring-surface shrink-0" />
+            <div className="flex-1 space-y-2 pb-1">
+              <div className="h-6 bg-surface-2 rounded w-2/5 max-w-[12rem]" />
+              <div className="h-4 bg-surface-2 rounded w-24" />
             </div>
           </div>
         </div>
@@ -91,55 +91,55 @@ export default function UserProfilePage() {
               <img
                 src={bannerUrl}
                 alt=""
-                className="w-full h-full object-cover object-[76%_42%] sm:object-[74%_40%]"
+                className="block w-full h-full object-cover object-center"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface/70" />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/45 to-transparent pointer-events-none" />
             </>
           ) : user.is_premium ? (
             <>
               <div className="w-full h-full bg-premium-gradient opacity-70" />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface/70" />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/45 to-transparent pointer-events-none" />
             </>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-surface-2 via-surface to-surface-2" />
           )}
         </div>
 
-        <div className={cn('p-6 sm:p-8 flex items-center gap-4 sm:gap-6 -mt-12 sm:-mt-14 relative')}>
-          <UserAvatar user={user} size={80} className="ring-4 ring-surface shadow-lg" />
+        <div className={cn('px-5 sm:px-8 pb-6 sm:pb-8 flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-12 sm:-mt-14 relative')}>
+          <UserAvatar user={user} size={80} className="ring-4 ring-surface shadow-lg shrink-0" />
 
-          <div className="flex-1 min-w-0 pt-4">
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl sm:text-2xl font-black text-white">{user.username}</h1>
+          <div className="flex-1 min-w-0 sm:pb-1">
+            <h1 className="text-xl sm:text-2xl font-black text-white break-words">{user.username}</h1>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
               {user.is_admin && (
-                <span className="badge-admin flex items-center gap-1">
+                <span className="badge-admin flex items-center gap-1 shrink-0">
                   <Shield size={10} />
                   ADMIN
                 </span>
               )}
-              {!user.is_admin && user.is_premium && (
-                <span className="badge-premium flex items-center gap-1">
+              {user.is_premium && (
+                <span className="badge-premium flex items-center gap-1 shrink-0">
                   <Crown size={10} />
                   PREMIUM
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1.5">
               <Calendar size={11} />
               На сайте с {joinDate}
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-6 shrink-0">
-            <div className="text-center">
+          <div className="hidden sm:flex items-end gap-5 shrink-0">
+            <div className="text-center px-1">
               <div className="text-2xl font-extrabold text-white">{userFavorites.length}</div>
-              <div className="text-xs text-gray-500 font-medium">Избранное</div>
+              <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 font-medium">Избранное</div>
             </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
+            <div className="w-px h-8 bg-border mb-1" />
+            <div className="text-center px-1">
               <div className="text-2xl font-extrabold text-white">{reviews.length}</div>
-              <div className="text-xs text-gray-500 font-medium">Отзывы</div>
+              <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 font-medium">Отзывы</div>
             </div>
           </div>
         </div>

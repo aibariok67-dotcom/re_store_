@@ -14,7 +14,15 @@ import { THEME_LABELS, THEME_COLORS } from '../utils/theme'
 import { cn } from '../utils/cn'
 import { useAuth } from '../hooks/useAuth'
 
-const THEMES: PremiumTheme[] = ['indigo', 'sky', 'emerald', 'rose']
+const THEMES: PremiumTheme[] = [
+  'indigo',
+  'sky',
+  'emerald',
+  'rose',
+  'amber',
+  'violet',
+  'cyan',
+]
 
 const FEATURES = [
   { icon: Palette, title: 'Цветовая тема', desc: 'Выберите один из 4 цветов для всего интерфейса' },

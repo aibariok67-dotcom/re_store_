@@ -100,7 +100,7 @@ export default function ProfilePage() {
             <img
               src={bannerUrl}
               alt=""
-              className="w-full h-full object-cover object-[76%_42%] sm:object-[74%_40%]"
+              className="block w-full h-full object-cover object-center"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
             />
           ) : user.is_premium ? (
@@ -137,20 +137,24 @@ export default function ProfilePage() {
 
             {/* Name + badges + meta */}
             <div className="flex-1 min-w-0 sm:pb-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h1 className="text-xl sm:text-[1.6875rem] font-black text-white tracking-tight">{user.username}</h1>
-                {user.is_admin && (
-                  <span className="badge-admin flex items-center gap-1">
-                    <Shield size={11} />
-                    ADMIN
-                  </span>
-                )}
-                {user.is_premium && (
-                  <span className="badge-premium flex items-center gap-1">
-                    <Crown size={11} />
-                    PREMIUM
-                  </span>
-                )}
+              <div className="min-w-0 mb-1.5">
+                <h1 className="text-xl sm:text-[1.6875rem] font-black text-white tracking-tight break-words">
+                  {user.username}
+                </h1>
+                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                  {user.is_admin && (
+                    <span className="badge-admin flex items-center gap-1 shrink-0">
+                      <Shield size={11} />
+                      ADMIN
+                    </span>
+                  )}
+                  {user.is_premium && (
+                    <span className="badge-premium flex items-center gap-1 shrink-0">
+                      <Crown size={11} />
+                      PREMIUM
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <Calendar size={12} />

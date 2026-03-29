@@ -14,6 +14,9 @@ export const THEME_LABELS: Record<PremiumTheme, string> = {
   sky: 'Небо',
   emerald: 'Изумруд',
   rose: 'Роза',
+  amber: 'Янтарь',
+  violet: 'Фиолет',
+  cyan: 'Бирюза',
 }
 
 export const THEME_COLORS: Record<PremiumTheme, string> = {
@@ -21,4 +24,7 @@ export const THEME_COLORS: Record<PremiumTheme, string> = {
   sky: '#0ea5e9',
   emerald: '#10b981',
   rose: '#f43f5e',
+  amber: '#f59e0b',
+  violet: '#a78bfa',
+  cyan: '#22d3ee',
 }

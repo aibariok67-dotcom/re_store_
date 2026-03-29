@@ -25,6 +25,9 @@ const THEME_RING: Record<string, string> = {
   sky: 'ring-sky-500/40',
   emerald: 'ring-emerald-500/40',
   rose: 'ring-rose-500/40',
+  amber: 'ring-amber-500/40',
+  violet: 'ring-violet-500/40',
+  cyan: 'ring-cyan-500/40',
 }
 
 function reviewsCountLabel(n: number): string {
