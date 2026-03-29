@@ -22,10 +22,12 @@ const THEMES: PremiumTheme[] = [
   'amber',
   'violet',
   'cyan',
+  'black',
+  'white',
 ]
 
 const FEATURES = [
-  { icon: Palette, title: 'Цветовая тема', desc: 'Выберите один из 4 цветов для всего интерфейса' },
+  { icon: Palette, title: 'Цветовая тема', desc: 'Выберите цветовую тему для всего интерфейса' },
   { icon: ImageIcon, title: 'Баннер профиля', desc: 'Загрузите уникальный баннер на страницу профиля' },
   { icon: Crown, title: 'Значок Premium', desc: 'Особый значок рядом с вашим именем везде на сайте' },
 ]
@@ -152,7 +154,7 @@ export default function PremiumPage() {
               <Palette size={16} className="text-primary-light" />
               <h2 className="font-bold text-white">Цветовая тема</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {THEMES.map((theme) => (
                 <button
                   key={theme}

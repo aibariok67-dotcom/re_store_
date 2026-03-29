@@ -134,13 +134,13 @@ export function AdminUsers() {
               <div
                 key={u.id}
                 className={cn(
-                  'flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3 px-3 py-3 rounded-xl border transition-colors',
+                  'flex flex-col gap-3 md:flex-row md:items-start md:gap-3 px-3 py-3 rounded-xl border transition-colors',
                   banned
                     ? 'bg-red-950/20 border-red-800/30'
                     : 'bg-surface-2 border-border'
                 )}
               >
-                <div className="flex items-start gap-3 min-w-0 flex-1">
+                <div className="flex items-start gap-3 min-w-0 w-full md:flex-1">
                   <Link to={`/users/${u.id}`} className="shrink-0">
                     <UserAvatar user={u} size={40} />
                   </Link>
@@ -178,13 +178,13 @@ export function AdminUsers() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-stretch sm:items-center justify-start sm:justify-end gap-2 w-full sm:w-auto sm:flex-shrink-0">
+                <div className="flex flex-col gap-2 w-full md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-2 md:w-auto md:flex-shrink-0">
                   {!u.is_admin && (
                     <>
                       {banned ? (
                         <button
                           type="button"
-                          className="btn-primary min-h-10 px-4 py-2 text-sm font-bold gap-2 shadow-md shadow-primary/15 flex-1 min-w-[9rem] sm:flex-initial justify-center"
+                          className="btn-primary min-h-10 px-4 py-2 text-sm font-bold gap-2 shadow-md shadow-primary/15 w-full md:w-auto justify-center"
                           onClick={() => unbanMut.mutate(u.id)}
                           title="Разбанить"
                           disabled={unbanMut.isPending}
@@ -196,7 +196,7 @@ export function AdminUsers() {
                         <>
                           <button
                             type="button"
-                            className="btn-secondary min-h-10 px-4 py-2 text-sm font-bold gap-2 border-amber-500/30 text-amber-200 hover:border-amber-400/50 hover:bg-amber-500/10 flex-1 min-w-[9rem] sm:flex-initial justify-center"
+                            className="btn-secondary min-h-10 px-4 py-2 text-sm font-bold gap-2 border-amber-500/30 text-amber-200 hover:border-amber-400/50 hover:bg-amber-500/10 w-full md:w-auto justify-center"
                             title="Бан на время"
                             onClick={() => { setBanModal({ user: u, type: 'temp' }); setTempDate('') }}
                           >
@@ -205,7 +205,7 @@ export function AdminUsers() {
                           </button>
                           <button
                             type="button"
-                            className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 flex-1 min-w-[9rem] sm:flex-initial justify-center"
+                            className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 w-full md:w-auto justify-center"
                             title="Постоянный бан"
                             onClick={() => setBanModal({ user: u, type: 'perm' })}
                           >
@@ -217,7 +217,7 @@ export function AdminUsers() {
                       {currentUser?.id !== u.id && (
                         <button
                           type="button"
-                          className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 border-red-600/40 flex-1 min-w-[9rem] sm:flex-initial justify-center"
+                          className="btn-danger min-h-10 px-4 py-2 text-sm font-bold gap-2 border-red-600/40 w-full md:w-auto justify-center"
                           title="Удалить пользователя и все связанные данные"
                           onClick={() => setDeleteTarget(u)}
                           disabled={deleteMut.isPending}

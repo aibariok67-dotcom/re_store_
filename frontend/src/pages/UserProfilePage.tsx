@@ -49,9 +49,9 @@ export default function UserProfilePage() {
       <div className="max-w-[1440px] mx-auto px-4 py-8 animate-pulse">
         <div className="card overflow-hidden max-w-4xl mx-auto !p-0">
           <div className="h-[clamp(7.5rem,20vw,15rem)] sm:h-[clamp(8.5rem,22vw,17rem)] bg-surface-2" />
-          <div className="px-5 sm:px-8 pb-6 flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-14 relative">
-            <div className="w-20 h-20 rounded-2xl bg-surface-2 ring-4 ring-surface shrink-0" />
-            <div className="flex-1 space-y-2 pb-1">
+          <div className="px-4 sm:px-8 pb-6 flex flex-row items-start gap-3 -mt-12 sm:-mt-14 relative">
+            <div className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-2xl bg-surface-2 ring-[3px] sm:ring-4 ring-surface shrink-0" />
+            <div className="flex-1 min-w-0 space-y-2 pt-0.5">
               <div className="h-6 bg-surface-2 rounded w-2/5 max-w-[12rem]" />
               <div className="h-4 bg-surface-2 rounded w-24" />
             </div>
@@ -106,12 +106,23 @@ export default function UserProfilePage() {
           )}
         </div>
 
-        <div className={cn('px-5 sm:px-8 pb-6 sm:pb-8 flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-12 sm:-mt-14 relative')}>
-          <UserAvatar user={user} size={80} className="ring-4 ring-surface shadow-lg shrink-0" />
+        {/* На телефоне — строка «аватар | текст», иначе ник и ADMIN уезжают к краю карточки */}
+        <div
+          className={cn(
+            'px-4 sm:px-8 pb-6 sm:pb-8 flex flex-row items-start sm:items-end gap-3 sm:gap-6 -mt-12 sm:-mt-14 relative'
+          )}
+        >
+          <UserAvatar
+            user={user}
+            size={72}
+            className="ring-[3px] sm:ring-4 ring-surface shadow-lg shrink-0"
+          />
 
-          <div className="flex-1 min-w-0 sm:pb-1">
-            <h1 className="text-xl sm:text-2xl font-black text-white break-words">{user.username}</h1>
-            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+          <div className="flex-1 min-w-0 sm:pb-1 pt-0.5 sm:pt-0">
+            <h1 className="text-lg sm:text-2xl font-black text-white break-words leading-tight">
+              {user.username}
+            </h1>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1.5 max-w-full">
               {user.is_admin && (
                 <span className="badge-admin flex items-center gap-1 shrink-0">
                   <Shield size={10} />
@@ -146,7 +157,7 @@ export default function UserProfilePage() {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        <div className="flex gap-1.5 mb-5 bg-surface-2/90 rounded-xl p-1.5 w-fit border border-white/[0.08]">
+        <div className="flex flex-wrap gap-1.5 mb-5 bg-surface-2/90 rounded-xl p-1.5 w-full sm:w-fit border border-white/[0.08] max-w-full">
           <button
             type="button"
             className={cn(

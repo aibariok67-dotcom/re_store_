@@ -56,7 +56,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
 
       {/* Add form */}
       <form
-        className="flex flex-col gap-2 sm:flex-row sm:items-stretch mb-6"
+        className="flex flex-col gap-2 md:flex-row md:items-stretch mb-6"
         onSubmit={(e) => { e.preventDefault(); if (newName.trim()) createMut.mutate() }}
       >
         <input
@@ -67,7 +67,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
         />
         <button
           type="submit"
-          className="btn-primary min-h-11 px-6 text-[15px] font-bold shrink-0 w-full sm:w-auto justify-center"
+          className="btn-primary min-h-11 px-6 text-[15px] font-bold shrink-0 w-full md:w-auto justify-center"
           disabled={!newName.trim() || createMut.isPending}
         >
           <Plus size={18} strokeWidth={2} />
@@ -80,12 +80,12 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center px-3 sm:px-4 py-3 bg-surface-2 rounded-xl border border-border"
+            className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center px-3 md:px-4 py-3 bg-surface-2 rounded-xl border border-border"
           >
             {editId === item.id ? (
               <>
                 <input
-                  className="input flex-1 min-w-0 py-1 w-full sm:w-auto"
+                  className="input flex-1 min-w-0 py-1 w-full md:w-auto"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   autoFocus
@@ -94,10 +94,10 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
                     if (e.key === 'Escape') setEditId(null)
                   }}
                 />
-                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto">
                   <button
                     type="button"
-                    className="btn-primary min-h-10 px-4 py-2 text-sm flex-1 sm:flex-initial justify-center"
+                    className="btn-primary min-h-10 px-4 py-2 text-sm flex-1 md:flex-initial justify-center"
                     onClick={() => updateMut.mutate({ id: item.id, name: editName })}
                   >
                     <Check size={16} strokeWidth={2} />
@@ -105,7 +105,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
                   </button>
                   <button
                     type="button"
-                    className="btn-secondary min-h-10 px-4 py-2 text-sm flex-1 sm:flex-initial justify-center"
+                    className="btn-secondary min-h-10 px-4 py-2 text-sm flex-1 md:flex-initial justify-center"
                     onClick={() => setEditId(null)}
                   >
                     <X size={16} strokeWidth={2} />
@@ -116,10 +116,10 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
             ) : (
               <>
                 <span className="flex-1 min-w-0 text-sm text-white font-medium">{item.name}</span>
-                <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:justify-end">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto md:justify-end">
                   <button
                     type="button"
-                    className="btn-secondary min-h-10 px-4 py-2 text-sm font-semibold gap-2 flex-1 sm:flex-initial justify-center"
+                    className="btn-secondary min-h-10 px-4 py-2 text-sm font-semibold gap-2 flex-1 md:flex-initial justify-center"
                     onClick={() => { setEditId(item.id); setEditName(item.name) }}
                   >
                     <Pencil size={16} strokeWidth={2} />
@@ -127,7 +127,7 @@ export function TagManager({ title, items, onCreate, onUpdate, onDelete, queryKe
                   </button>
                   <button
                     type="button"
-                    className="btn-danger min-h-10 px-4 py-2 text-sm font-semibold gap-2 flex-1 sm:flex-initial justify-center"
+                    className="btn-danger min-h-10 px-4 py-2 text-sm font-semibold gap-2 flex-1 md:flex-initial justify-center"
                     onClick={() => setPendingDelete({ id: item.id, name: item.name })}
                     disabled={deleteMut.isPending}
                   >

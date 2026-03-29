@@ -17,6 +17,8 @@ const themeGradients: Record<string, string> = {
   amber: 'from-amber-400 to-orange-600',
   violet: 'from-violet-400 to-purple-700',
   cyan: 'from-cyan-400 to-blue-600',
+  black: 'from-zinc-500 to-zinc-900',
+  white: 'from-slate-100 to-slate-400',
 }
 
 export function UserAvatar({ user, size = 40, className }: UserAvatarProps) {

@@ -64,6 +64,8 @@ export type PremiumTheme =
   | 'amber'
   | 'violet'
   | 'cyan'
+  | 'black'
+  | 'white'
 
 export interface User {
   id: number

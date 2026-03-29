@@ -17,6 +17,8 @@ export const THEME_LABELS: Record<PremiumTheme, string> = {
   amber: 'Янтарь',
   violet: 'Фиолет',
   cyan: 'Бирюза',
+  black: 'Чёрная',
+  white: 'Белая',
 }
 
 export const THEME_COLORS: Record<PremiumTheme, string> = {
@@ -27,4 +29,6 @@ export const THEME_COLORS: Record<PremiumTheme, string> = {
   amber: '#f59e0b',
   violet: '#a78bfa',
   cyan: '#22d3ee',
+  black: '#a1a1aa',
+  white: '#f8fafc',
 }

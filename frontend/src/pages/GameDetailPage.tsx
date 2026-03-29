@@ -28,6 +28,8 @@ const THEME_RING: Record<string, string> = {
   amber: 'ring-amber-500/40',
   violet: 'ring-violet-500/40',
   cyan: 'ring-cyan-500/40',
+  black: 'ring-zinc-400/40',
+  white: 'ring-slate-200/45',
 }
 
 function reviewsCountLabel(n: number): string {

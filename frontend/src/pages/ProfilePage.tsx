@@ -123,47 +123,49 @@ export default function ProfilePage() {
         </div>
 
         {/* Avatar + info row */}
-        <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-10 sm:-mt-11 relative">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 sm:gap-4">
+        <div className="px-4 sm:px-6 pb-5 sm:pb-6 -mt-10 sm:-mt-11 relative">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+            {/* Верхняя строка на телефоне: аватар + ник; счётчики — отдельной строкой на всю ширину */}
+            <div className="flex flex-row items-start gap-3 min-w-0 flex-1 sm:items-end">
+              {/* Avatar */}
+              <div className="relative group flex-shrink-0">
+                <UserAvatar user={user} size={64} className="ring-2 ring-surface shadow-lg" />
+                <label className="absolute inset-0 rounded-2xl cursor-pointer opacity-0 group-hover:opacity-100 bg-black/50 flex items-center justify-center transition-opacity">
+                  <Camera size={18} className="text-white" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
+                </label>
+              </div>
 
-            {/* Avatar */}
-            <div className="relative group flex-shrink-0 w-16 h-16">
-              <UserAvatar user={user} size={64} className="ring-2 ring-surface shadow-lg" />
-              <label className="absolute inset-0 rounded-2xl cursor-pointer opacity-0 group-hover:opacity-100 bg-black/50 flex items-center justify-center transition-opacity">
-                <Camera size={18} className="text-white" />
-                <input type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
-              </label>
-            </div>
-
-            {/* Name + badges + meta */}
-            <div className="flex-1 min-w-0 sm:pb-1">
-              <div className="min-w-0 mb-1.5">
-                <h1 className="text-xl sm:text-[1.6875rem] font-black text-white tracking-tight break-words">
-                  {user.username}
-                </h1>
-                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                  {user.is_admin && (
-                    <span className="badge-admin flex items-center gap-1 shrink-0">
-                      <Shield size={11} />
-                      ADMIN
-                    </span>
-                  )}
-                  {user.is_premium && (
-                    <span className="badge-premium flex items-center gap-1 shrink-0">
-                      <Crown size={11} />
-                      PREMIUM
-                    </span>
-                  )}
+              {/* Name + badges + meta */}
+              <div className="flex-1 min-w-0 sm:pb-1">
+                <div className="min-w-0 mb-1.5">
+                  <h1 className="text-xl sm:text-[1.6875rem] font-black text-white tracking-tight break-words">
+                    {user.username}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    {user.is_admin && (
+                      <span className="badge-admin flex items-center gap-1 shrink-0">
+                        <Shield size={11} />
+                        ADMIN
+                      </span>
+                    )}
+                    {user.is_premium && (
+                      <span className="badge-premium flex items-center gap-1 shrink-0">
+                        <Crown size={11} />
+                        PREMIUM
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <Calendar size={12} />
+                  На сайте с {joinDate}
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                <Calendar size={12} />
-                На сайте с {joinDate}
-              </div>
             </div>
 
-            {/* Stats + actions: на телефоне кнопка ближе к счётчикам, без уезда вправо */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 sm:pb-1 justify-start w-full sm:w-auto">
+            {/* Stats + actions: на телефоне отдельная строка — не наезжают на ник */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 sm:pb-1 justify-start w-full sm:w-auto sm:shrink-0">
               <StatCard value={favorites.length} label="Избранное" />
               <div className="w-px h-8 bg-border shrink-0" />
               <StatCard value={reviews.length} label="Отзывы" />
@@ -182,7 +184,7 @@ export default function ProfilePage() {
 
       {/* ── Content tabs ── */}
       <div>
-        <div className="flex gap-1.5 mb-5 bg-surface-2/90 rounded-xl p-1.5 w-fit border border-white/[0.08]">
+        <div className="flex flex-wrap gap-1.5 mb-5 bg-surface-2/90 rounded-xl p-1.5 w-full sm:w-fit border border-white/[0.08] max-w-full">
           <button
             type="button"
             className={cn(
