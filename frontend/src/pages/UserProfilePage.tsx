@@ -91,16 +91,10 @@ export default function UserProfilePage() {
               <img
                 src={bannerUrl}
                 alt=""
-                className="absolute inset-0 block w-full h-full object-cover scale-110 blur-xl opacity-50"
+                className="absolute inset-0 block h-full w-full object-cover object-center"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
               />
-              <img
-                src={bannerUrl}
-                alt=""
-                className="relative z-[1] block w-full h-full object-contain p-2 sm:p-3"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/45 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-surface/10 pointer-events-none z-[1]" />
             </>
           ) : user.is_premium ? (
             <>

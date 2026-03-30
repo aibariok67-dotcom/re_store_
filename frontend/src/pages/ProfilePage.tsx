@@ -96,20 +96,12 @@ export default function ProfilePage() {
 
         <div className="relative w-full h-[clamp(7.25rem,18vw,10rem)] sm:h-[clamp(8rem,19vw,11rem)] overflow-hidden group">
           {user.is_premium && bannerUrl ? (
-            <>
-              <img
-                src={bannerUrl}
-                alt=""
-                className="absolute inset-0 block w-full h-full object-cover scale-110 blur-xl opacity-50"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-              <img
-                src={bannerUrl}
-                alt=""
-                className="relative z-[1] block w-full h-full object-contain p-2 sm:p-3"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-            </>
+            <img
+              src={bannerUrl}
+              alt=""
+              className="absolute inset-0 block h-full w-full object-cover object-center"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
           ) : user.is_premium ? (
             <div className="w-full h-full bg-premium-gradient opacity-80" />
           ) : (
