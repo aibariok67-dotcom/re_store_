@@ -48,7 +48,7 @@ export default function UserProfilePage() {
     return (
       <div className="max-w-[1440px] mx-auto px-4 py-8 animate-pulse">
         <div className="card overflow-hidden max-w-4xl mx-auto !p-0">
-          <div className="h-[clamp(7.5rem,20vw,15rem)] sm:h-[clamp(8.5rem,22vw,17rem)] bg-surface-2" />
+          <div className="h-[clamp(9.5rem,24vw,17rem)] sm:h-[clamp(11rem,28vw,19rem)] bg-surface-2" />
           <div className="px-4 sm:px-8 pb-6 flex flex-row items-start gap-3 -mt-12 sm:-mt-14 relative">
             <div className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-2xl bg-surface-2 ring-[3px] sm:ring-4 ring-surface shrink-0" />
             <div className="flex-1 min-w-0 space-y-2 pt-0.5">
@@ -85,7 +85,7 @@ export default function UserProfilePage() {
 
       <div className="card mb-8 overflow-hidden border-white/[0.08] !p-0 max-w-4xl mx-auto">
         {/* Banner */}
-        <div className="relative w-full h-[clamp(7.5rem,20vw,15rem)] sm:h-[clamp(8.5rem,22vw,17rem)] overflow-hidden">
+        <div className="relative w-full h-[clamp(9.5rem,24vw,17rem)] sm:h-[clamp(11rem,28vw,19rem)] overflow-hidden">
           {user.is_premium && bannerUrl ? (
             <>
               <img

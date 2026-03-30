@@ -95,7 +95,7 @@ export default function ProfilePage() {
       <div className="card overflow-hidden border-white/[0.08] !p-0">
 
         {/* Ультраширокие баннеры (как киношный кадр): фокус справа — лицо / глаз */}
-        <div className="relative w-full h-[clamp(6.75rem,18vw,13.5rem)] sm:h-[clamp(7.65rem,19.8vw,15.3rem)] overflow-hidden group">
+        <div className="relative w-full h-[clamp(8.5rem,23vw,16rem)] sm:h-[clamp(10rem,26vw,18rem)] overflow-hidden group">
           {user.is_premium && bannerUrl ? (
             <img
               src={bannerUrl}
