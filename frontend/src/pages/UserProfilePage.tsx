@@ -48,7 +48,9 @@ export default function UserProfilePage() {
     return (
       <div className="max-w-[1440px] mx-auto px-4 py-8 animate-pulse">
         <div className="card overflow-hidden max-w-4xl mx-auto !p-0">
-          <div className="h-[clamp(7.25rem,18vw,10rem)] sm:h-[clamp(8rem,19vw,11rem)] bg-surface-2" />
+          <div className="px-3 pt-3 sm:px-4 sm:pt-4">
+            <div className="h-[9.25rem] sm:h-[10.5rem] md:h-44 rounded-2xl bg-surface-2" />
+          </div>
           <div className="px-4 sm:px-8 pb-6 flex flex-row items-start gap-3 -mt-12 sm:-mt-14 relative">
             <div className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-2xl bg-surface-2 ring-[3px] sm:ring-4 ring-surface shrink-0" />
             <div className="flex-1 min-w-0 space-y-2 pt-0.5">
@@ -83,27 +85,31 @@ export default function UserProfilePage() {
         Назад
       </Link>
 
-      <div className="card mb-8 overflow-hidden border-white/[0.08] !p-0 max-w-4xl mx-auto">
-        {/* Banner */}
-        <div className="relative w-full h-[clamp(7.25rem,18vw,10rem)] sm:h-[clamp(8rem,19vw,11rem)] overflow-hidden">
-          {user.is_premium && bannerUrl ? (
-            <>
-              <img
-                src={bannerUrl}
-                alt=""
-                className="absolute inset-0 block h-full w-full object-cover object-center"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-surface/10 pointer-events-none z-[1]" />
-            </>
-          ) : user.is_premium ? (
-            <>
-              <div className="w-full h-full bg-premium-gradient opacity-70" />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/45 to-transparent pointer-events-none" />
-            </>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-surface-2 via-surface to-surface-2" />
-          )}
+      <div className="card mb-8 overflow-hidden border-white/[0.08] !p-0 max-w-4xl mx-auto w-full">
+        {/* Обложка — внутренний кадр с фикс. высотой, без «шторы» на всю колонку */}
+        <div className="relative px-3 pt-3 sm:px-4 sm:pt-4">
+          <div className="relative h-[9.25rem] sm:h-[10.5rem] md:h-44 overflow-hidden rounded-2xl ring-1 ring-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+            {user.is_premium && bannerUrl ? (
+              <>
+                <img
+                  src={bannerUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-[center_32%] scale-[1.01]"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+                <div
+                  className="absolute inset-0 opacity-45 mix-blend-overlay bg-gradient-to-br from-surface/80 via-transparent to-transparent pointer-events-none"
+                  aria-hidden
+                />
+              </>
+            ) : user.is_premium ? (
+              <div className="h-full w-full bg-premium-gradient opacity-85" />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-surface-2 via-surface to-surface-2" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/55 to-surface/5 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 via-black/10 to-transparent pointer-events-none" />
+          </div>
         </div>
 
         {/* На телефоне — строка «аватар | текст», иначе ник и ADMIN уезжают к краю карточки */}

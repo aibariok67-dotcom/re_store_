@@ -90,39 +90,49 @@ export default function ProfilePage() {
   const joinDate = format(new Date(user.created_at), 'd MMMM yyyy', { locale: ru })
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-7 sm:py-9 space-y-7">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-7 sm:py-9">
+      <div className="max-w-4xl mx-auto w-full space-y-7">
 
       <div className="card overflow-hidden border-white/[0.08] !p-0">
+        {/* Обложка: внутренний «кадр», не полоса на всю ширину лейаута */}
+        <div className="relative px-3 pt-3 sm:px-4 sm:pt-4 group">
+          <div className="relative h-[9.25rem] sm:h-[10.5rem] md:h-44 overflow-hidden rounded-2xl ring-1 ring-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+            {user.is_premium && bannerUrl ? (
+              <>
+                <img
+                  src={bannerUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-[center_32%] scale-[1.01]"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+                <div
+                  className="absolute inset-0 opacity-45 mix-blend-overlay bg-gradient-to-br from-surface/80 via-transparent to-transparent pointer-events-none"
+                  aria-hidden
+                />
+              </>
+            ) : user.is_premium ? (
+              <div className="h-full w-full bg-premium-gradient opacity-85" />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-surface-2 via-surface to-surface-2" />
+            )}
 
-        <div className="relative w-full h-[clamp(7.25rem,18vw,10rem)] sm:h-[clamp(8rem,19vw,11rem)] overflow-hidden group">
-          {user.is_premium && bannerUrl ? (
-            <img
-              src={bannerUrl}
-              alt=""
-              className="absolute inset-0 block h-full w-full object-cover object-center"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          ) : user.is_premium ? (
-            <div className="w-full h-full bg-premium-gradient opacity-80" />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-surface-2 via-surface to-surface-2" />
-          )}
+            <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/55 to-surface/5 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 via-black/10 to-transparent pointer-events-none" />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/45 to-transparent pointer-events-none" />
-
-          {user.is_premium && (
-            <Link
-              to="/premium"
-              className="absolute bottom-4 right-4 flex items-center gap-2 min-h-10 px-4 rounded-xl bg-black/55 backdrop-blur-md text-sm font-semibold text-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 ring-1 ring-white/10"
-            >
-              <Camera size={16} strokeWidth={2} />
-              Баннер
-            </Link>
-          )}
+            {user.is_premium && (
+              <Link
+                to="/premium"
+                className="absolute bottom-3 right-3 z-[2] flex items-center gap-2 min-h-10 px-3.5 rounded-xl bg-black/50 backdrop-blur-md text-sm font-semibold text-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/65 ring-1 ring-white/10"
+              >
+                <Camera size={16} strokeWidth={2} />
+                Баннер
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Avatar + info row */}
-        <div className="px-4 sm:px-6 pb-5 sm:pb-6 -mt-10 sm:-mt-11 relative">
+        <div className="px-4 sm:px-6 pb-5 sm:pb-6 -mt-10 sm:-mt-11 relative z-[1]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
             {/* Верхняя строка на телефоне: аватар + ник; счётчики — отдельной строкой на всю ширину */}
             <div className="flex flex-row items-start gap-3 min-w-0 flex-1 sm:items-end">
@@ -344,7 +354,7 @@ export default function ProfilePage() {
       {!user.is_premium && (
         <Link
           to="/premium"
-          className="card p-4 flex items-center justify-between hover:border-primary/40 transition-all group"
+          className="card p-4 flex items-center justify-between hover:border-primary/40 transition-all group w-full"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-primary/20">
@@ -362,6 +372,8 @@ export default function ProfilePage() {
           </span>
         </Link>
       )}
+
+      </div>
 
       {/* ── Modals ── */}
       <EditProfileModal
