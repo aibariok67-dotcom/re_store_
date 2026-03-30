@@ -49,7 +49,7 @@ export default function UserProfilePage() {
       <div className="max-w-[1440px] mx-auto px-4 py-8 animate-pulse">
         <div className="card overflow-hidden max-w-4xl mx-auto !p-0">
           <div className="px-3 pt-3 sm:px-4 sm:pt-4">
-            <div className="h-[9.25rem] sm:h-[10.5rem] md:h-44 rounded-2xl bg-surface-2" />
+            <div className="h-[10rem] sm:h-[11rem] md:h-48 rounded-2xl bg-surface-2" />
           </div>
           <div className="px-4 sm:px-8 pb-6 flex flex-row items-start gap-3 -mt-12 sm:-mt-14 relative">
             <div className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-2xl bg-surface-2 ring-[3px] sm:ring-4 ring-surface shrink-0" />
@@ -88,7 +88,7 @@ export default function UserProfilePage() {
       <div className="card mb-8 overflow-hidden border-white/[0.08] !p-0 max-w-4xl mx-auto w-full">
         {/* Обложка — внутренний кадр с фикс. высотой, без «шторы» на всю колонку */}
         <div className="relative px-3 pt-3 sm:px-4 sm:pt-4">
-          <div className="relative h-[9.25rem] sm:h-[10.5rem] md:h-44 overflow-hidden rounded-2xl ring-1 ring-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="relative h-[10rem] sm:h-[11rem] md:h-48 overflow-hidden rounded-2xl ring-1 ring-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             {user.is_premium && bannerUrl ? (
               <>
                 <img

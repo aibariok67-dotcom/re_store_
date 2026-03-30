@@ -96,7 +96,7 @@ export default function ProfilePage() {
       <div className="card overflow-hidden border-white/[0.08] !p-0">
         {/* Обложка: внутренний «кадр», не полоса на всю ширину лейаута */}
         <div className="relative px-3 pt-3 sm:px-4 sm:pt-4 group">
-          <div className="relative h-[9.25rem] sm:h-[10.5rem] md:h-44 overflow-hidden rounded-2xl ring-1 ring-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="relative h-[10rem] sm:h-[11rem] md:h-48 overflow-hidden rounded-2xl ring-1 ring-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             {user.is_premium && bannerUrl ? (
               <>
                 <img
