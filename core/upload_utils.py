@@ -6,10 +6,8 @@ from fastapi import UploadFile
 
 from core.exceptions import BadRequest, PayloadTooLarge
 
-# Лимит размера тела файла (читаем не больше этого объёма в память).
 MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024
 
-# Размер чанка при чтении из UploadFile (не загружаем весь файл одним read()).
 READ_CHUNK_SIZE = 256 * 1024
 
 ALLOWED_IMAGE_MIMES = frozenset({"image/jpeg", "image/png", "image/webp"})

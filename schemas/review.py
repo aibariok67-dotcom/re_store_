@@ -35,8 +35,6 @@ class ReviewResponse(BaseModel):
     image_url: str | None
     created_at: datetime
     username: str | None = None
-
-    # Чтобы фронт мог показывать бейдж “Премиум” у автора.
     is_premium: bool = False
     @field_validator("is_premium", mode="before")
     @classmethod

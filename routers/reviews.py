@@ -25,7 +25,6 @@ async def get_my_reviews(
 
 @router.get("/user/{user_id}")
 async def get_reviews_by_user(user_id: int, db: AsyncSession = Depends(get_db)):
-    # Исторический эндпоинт, который использует фронтенд для страницы профиля.
     return await review_service.get_reviews_by_user(db, user_id)
 
 @router.get("/{review_id}", response_model=ReviewResponse)

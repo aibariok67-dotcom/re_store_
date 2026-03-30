@@ -61,10 +61,9 @@ async def register_user(db: AsyncSession, data: UserCreate) -> User:
     return user
 
 async def login_user(db: AsyncSession, email: str, password: str) -> str:
-    # Пробуем найти по email, если не нашли — ищем по username
     user = await get_user_by_email(db, email)
     if not user:
-        user = await get_user_by_username(db, email)  # email-поле используем как логин
+        user = await get_user_by_username(db, email)
     if not user:
         raise ValueError("Неверный email или пароль")
 

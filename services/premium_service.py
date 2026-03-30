@@ -11,7 +11,6 @@ from schemas.premium import PremiumProfileUpdate
 
 
 def _is_active_premium(user: User) -> bool:
-    # MVP: “навсегда” => premium_until обычно NULL.
     if not user.is_premium:
         return False
     if user.premium_until is None:
@@ -23,7 +22,7 @@ async def buy_premium(db: AsyncSession, user_id: int) -> User:
     user = (await db.execute(select(User).where(User.id == user_id))).scalar_one()
 
     user.is_premium = True
-    user.premium_until = None  # навсегда
+    user.premium_until = None
     if not user.premium_theme:
         user.premium_theme = "indigo"
     await db.commit()
@@ -52,11 +51,9 @@ async def update_premium_profile(
 async def disable_premium(db: AsyncSession, user_id: int) -> User:
     user = (await db.execute(select(User).where(User.id == user_id))).scalar_one()
 
-    # Отключаем премиум навсегда.
     user.is_premium = False
     user.premium_until = None
 
-    # Возвращаем дефолтное оформление и убираем баннер.
     user.premium_theme = "indigo"
     user.banner_url = None
 

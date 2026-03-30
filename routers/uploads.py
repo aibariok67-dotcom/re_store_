@@ -40,7 +40,6 @@ async def upload_image(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
 ):
-    # Content-Type — лишь подсказка; решение по типу — по сигнатуре после чтения.
     if file.content_type and not file.content_type.startswith("image/"):
         raise BadRequest("Ожидается файл изображения")
 

@@ -16,11 +16,11 @@ REVIEW_AVG_SUBQ = (
 
 
 def parse_date(value: str, is_end: bool = False) -> date:
-    if len(value) == 4:  # передали только год
+    if len(value) == 4:
         if is_end:
             return date(int(value), 12, 31)
         return date(int(value), 1, 1)
-    return date.fromisoformat(value)  # передали полную дату 2012-01-01
+    return date.fromisoformat(value)
 
 async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
                     search=None, min_rating=None,
@@ -43,7 +43,6 @@ async def get_games(db: AsyncSession, category_ids=None, platform_ids=None,
     if search:
         raw = search.strip()
         if raw:
-            # Каждое слово запроса должно встречаться в названии или в строке алиасов (через запятую/точку с запятой).
             tokens = [t for t in raw.replace(";", " ").split() if t]
             if tokens:
                 for token in tokens:

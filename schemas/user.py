@@ -37,16 +37,12 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
     is_admin: bool
 
-    # Бан/статус аккаунта
     is_banned: bool = False
     banned_until: datetime | None = None
 
-    # Дата регистрации (используется фронтендом)
     created_at: datetime
 
     is_premium: bool = False
-    # В БД после миграций могут остаться NULL для старых пользователей.
-    # Поэтому делаем безопасные значения на уровне схемы ответа.
     @field_validator("is_premium", mode="before")
     @classmethod
     def default_is_premium(cls, v):
@@ -59,7 +55,7 @@ class UserResponse(BaseModel):
         return "indigo" if v is None else v
 
     premium_until: datetime | None = None
-    banner_url: Optional[str] = None  # Оставь только один раз в конце
+    banner_url: Optional[str] = None
     model_config = {"from_attributes": True}
 
 

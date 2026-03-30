@@ -8,8 +8,6 @@ limiter = Limiter(key_func=get_remote_address)
 
 def setup_limiter(app):
     app.state.limiter = limiter
-    # Для тестов rate-limit только мешает и делает ответы недетерминированными.
-    # Отключаем middleware, когда явно включено через env.
     if os.getenv("DISABLE_RATE_LIMITS", "0") == "1":
         limiter.enabled = False
         return

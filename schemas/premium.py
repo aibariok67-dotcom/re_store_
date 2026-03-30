@@ -17,8 +17,6 @@ PREMIUM_THEMES = {
 
 
 class PremiumBuyRequest(BaseModel):
-    # Для MVP покупка всегда “успешна” и выдаёт премиум навсегда.
-    # Позже сюда можно будет добавить id/price/провайдера платежа.
     pass
 
 

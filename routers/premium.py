@@ -16,13 +16,11 @@ async def buy(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    # MVP: выдаём премиум сразу.
     return await buy_premium(db, current_user.id)
 
 
 @router.get("/status", response_model=PremiumStatusResponse)
 async def status(current_user: User = Depends(get_current_user)):
-    # Текущий статус можно считать прямо из user.
     return current_user
 
 

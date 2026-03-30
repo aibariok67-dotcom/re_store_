@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 
 
 @router.post("/register", response_model=UserResponse)
-@limiter.limit("3/hour")  # максимум 3 регистрации в час с одного IP
+@limiter.limit("3/hour")
 async def register(request: Request, data: UserCreate, db: AsyncSession = Depends(get_db)):
     try:
         user = await register_user(db, data)
@@ -27,14 +27,13 @@ async def register(request: Request, data: UserCreate, db: AsyncSession = Depend
 
 
 @router.post("/login", response_model=Token)
-@limiter.limit("10/minute")  # максимум 10 попыток в минуту с одного IP
+@limiter.limit("10/minute")
 async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(get_db)):
     try:
         token = await login_user(db, data.email, data.password)
         logger.info(f"Вход: {data.email}")
         return {"access_token": token, "token_type": "bearer"}
     except ValueError as e:
-        # login_user отдаёт разные ValueError-месседжи; конвертим их в нормальные HTTP-коды.
         msg = str(e)
         logger.warning(f"Неудачный вход: {data.email} ({msg})")
 

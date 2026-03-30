@@ -6,25 +6,21 @@ class AppException(HTTPException):
         super().__init__(status_code=status_code, detail=detail)
 
 
-# ── 400 Bad Request ──────────────────────────────────────────────────────────
 class BadRequest(AppException):
     def __init__(self, detail: str = "Некорректный запрос"):
         super().__init__(400, detail)
 
 
-# ── 413 Payload Too Large ────────────────────────────────────────────────────
 class PayloadTooLarge(AppException):
     def __init__(self, detail: str = "Файл слишком большой"):
         super().__init__(413, detail)
 
 
-# ── 503 Service Unavailable (внешние сервисы) ───────────────────────────────
 class UploadFailed(AppException):
     def __init__(self, detail: str = "Не удалось загрузить файл. Попробуйте позже"):
         super().__init__(503, detail)
 
 
-# ── 401 Unauthorized ─────────────────────────────────────────────────────────
 class InvalidToken(AppException):
     def __init__(self):
         super().__init__(401, "Невалидный или истёкший токен")
@@ -34,7 +30,6 @@ class InvalidCredentials(AppException):
         super().__init__(401, "Неверный логин или пароль")
 
 
-# ── 403 Forbidden ────────────────────────────────────────────────────────────
 class PermissionDenied(AppException):
     def __init__(self, detail: str = "Нет прав доступа"):
         super().__init__(403, detail)
@@ -44,7 +39,6 @@ class UserBanned(AppException):
         super().__init__(403, detail)
 
 
-# ── 404 Not Found ────────────────────────────────────────────────────────────
 class NotFound(AppException):
     def __init__(self, what: str = "Объект"):
         super().__init__(404, f"{what} не найден")
@@ -70,7 +64,6 @@ class PlatformNotFound(NotFound):
         super().__init__("Платформа")
 
 
-# ── 409 Conflict ─────────────────────────────────────────────────────────────
 class AlreadyExists(AppException):
     def __init__(self, what: str = "Объект"):
         super().__init__(409, f"{what} уже существует")
