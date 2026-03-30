@@ -6,7 +6,10 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import text
+import asyncpg
 from core.database import Base, get_db
 from main import app
 
@@ -17,6 +20,34 @@ TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "postgresql+asyncpg://postgre
 
 @pytest_asyncio.fixture
 async def prepare_database():
+    # Некоторые окружения поднимают Postgres, но не создают тестовую БД.
+    # Поэтому гарантируем наличие `TEST_DATABASE_URL` перед create_all.
+    url = make_url(TEST_DATABASE_URL)
+    test_db_name = url.database
+    if test_db_name:
+        safe_name = test_db_name.replace('"', '""')
+        host = url.host or "localhost"
+        port = url.port or 5432
+        user = url.username or "postgres"
+        password = url.password or "postgres"
+
+        conn = await asyncpg.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            database="postgres",
+        )
+        try:
+            exists = await conn.fetchrow(
+                "SELECT 1 FROM pg_database WHERE datname = $1",
+                test_db_name,
+            )
+            if exists is None:
+                await conn.execute(f'CREATE DATABASE "{safe_name}"')
+        finally:
+            await conn.close()
+
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
