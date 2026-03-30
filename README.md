@@ -118,6 +118,7 @@ re_store_/
 ![Профиль пользователя](screenshot2.png).
 ![Панель управления](screenshot3.png).
 ![Панель управления](screenshot4.png).
+![Страница игры](screenshot5.png)
 
 ---
 
