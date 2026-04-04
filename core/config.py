@@ -16,6 +16,16 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
 
+    # AI: сводка по отзывам (OpenAI-compatible Chat Completions)
+    OPENAI_API_KEY: str = ""
+    AI_REVIEWS_API_URL: str = "https://api.openai.com/v1/chat/completions"
+    AI_REVIEWS_MODEL: str = "gpt-4o-mini"
+    AI_REVIEWS_MIN_COUNT: int = 3
+    AI_REVIEWS_MAX_FETCH: int = 40
+    AI_REVIEWS_MAX_CONTEXT_CHARS: int = 12000
+    AI_REVIEWS_PER_REVIEW_MAX_CHARS: int = 800
+    AI_REVIEWS_TIMEOUT_SEC: float = 60.0
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",

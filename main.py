@@ -9,7 +9,7 @@ from core.limiter import setup_limiter
 from core.logging_config import setup_logging, get_logger
 from core.exceptions import AppException
 from core.config import settings
-from routers import games, categories, platforms, auth, reviews, uploads, admin, favorites, premium
+from routers import games, categories, platforms, auth, reviews, uploads, admin, favorites, premium, ai
 
 
 setup_logging()
@@ -63,6 +63,7 @@ app.include_router(uploads.router)
 app.include_router(admin.router)
 app.include_router(favorites.router)
 app.include_router(premium.router)
+app.include_router(ai.router)
 
 # Mount AFTER routers so POST /uploads/image is handled by the router first
 

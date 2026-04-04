@@ -85,6 +85,20 @@ class AlreadyReviewed(AlreadyExists):
         super().__init__("Отзыв на эту игру")
 
 
+class TooFewReviews(BadRequest):
+    """Слишком мало отзывов для AI-анализа."""
+
+    def __init__(self, detail: str):
+        super().__init__(detail=detail)
+
+
+class AIServiceError(AppException):
+    """Ошибка внешнего AI API или разбора ответа."""
+
+    def __init__(self, detail: str, status_code: int = 502):
+        super().__init__(status_code=status_code, detail=detail)
+
+
 class CategoryNameTaken(AlreadyExists):
     def __init__(self):
         super().__init__("Категория с таким названием")

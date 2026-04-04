@@ -1,11 +1,31 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from core.db_integrity import is_unique_violation
 from models.review import Review
 from schemas.review import ReviewCreate
 from core.exceptions import ReviewNotFound, AlreadyReviewed, PermissionDenied
+
+async def count_reviews_for_game(db: AsyncSession, game_id: int) -> int:
+    result = await db.execute(
+        select(func.count()).select_from(Review).where(Review.game_id == game_id)
+    )
+    return int(result.scalar_one())
+
+
+async def get_reviews_for_ai_context(
+    db: AsyncSession, game_id: int, limit: int
+) -> list[tuple[float, str]]:
+    """Только рейтинг и текст, новые первыми — для LLM без персональных данных."""
+    result = await db.execute(
+        select(Review.rating, Review.text)
+        .where(Review.game_id == game_id)
+        .order_by(Review.created_at.desc())
+        .limit(limit)
+    )
+    return [(float(r), t) for r, t in result.all()]
+
 
 async def get_reviews_by_game(db: AsyncSession, game_id: int) -> list:
     from models.user import User

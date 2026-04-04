@@ -107,6 +107,15 @@ export interface ReviewCreate {
   image_url?: string
 }
 
+/** Ответ AI-сводки по отзывам игры */
+export interface GameReviewsAISummary {
+  game_id: number
+  summary: string
+  positives: string[]
+  negatives: string[]
+  conclusion: string
+}
+
 export interface Token {
   access_token: string
   token_type: string

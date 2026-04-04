@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Star, Calendar, Building2, BookOpen, Heart, ArrowLeft, Trash2, Image as ImageIcon, MessagesSquare,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, Sparkles,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getGame } from '../api/games'
@@ -15,10 +15,14 @@ import { useAuth } from '../hooks/useAuth'
 import { UserAvatar } from '../components/UserAvatar'
 import { ImageCropperModal } from '../components/ImageCropperModal'
 import { Modal } from '../components/Modal'
-import type { Review } from '../types'
+import { postGameReviewsAISummary } from '../api/ai'
+import type { GameReviewsAISummary, Review } from '../types'
 import { cn } from '../utils/cn'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
+
+/** Совпадает с AI_REVIEWS_MIN_COUNT на бэкенде по умолчанию */
+const MIN_REVIEWS_FOR_AI = 3
 
 const THEME_RING: Record<string, string> = {
   indigo: 'ring-indigo-500/40',
@@ -66,6 +70,9 @@ export default function GameDetailPage() {
   const [imgError, setImgError] = useState(false)
   const [reviewToDelete, setReviewToDelete] = useState<number | null>(null)
   const [reviewFormOpen, setReviewFormOpen] = useState(true)
+  const [aiSummary, setAiSummary] = useState<GameReviewsAISummary | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   const { data: game, isLoading: gameLoading } = useQuery({
     queryKey: ['game', gameId],
@@ -78,6 +85,12 @@ export default function GameDetailPage() {
     queryFn: () => getGameReviews(gameId),
     enabled: !!gameId,
   })
+
+  useEffect(() => {
+    setAiSummary(null)
+    setAiError(null)
+    setAiLoading(false)
+  }, [gameId])
 
   const { data: favorites = [] } = useQuery({
     queryKey: ['favorites'],
@@ -125,6 +138,32 @@ export default function GameDetailPage() {
     },
     onError: () => toast.error('Ошибка'),
   })
+
+  async function runAiReviewsSummary() {
+    if (!isAuthenticated) {
+      toast.error('Войдите в аккаунт, чтобы запустить AI-анализ отзывов')
+      return
+    }
+    if (reviews.length < MIN_REVIEWS_FOR_AI) {
+      toast.error(`Нужно минимум ${MIN_REVIEWS_FOR_AI} отзыва для анализа`)
+      return
+    }
+    setAiLoading(true)
+    setAiError(null)
+    try {
+      const data = await postGameReviewsAISummary(gameId)
+      setAiSummary(data)
+      toast.success('AI-анализ готов')
+    } catch (e: unknown) {
+      const msg =
+        (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        ?? 'Не удалось получить AI-анализ'
+      setAiError(msg)
+      toast.error(msg)
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -315,12 +354,82 @@ export default function GameDetailPage() {
 
       {/* Reviews section */}
       <div>
-        <div className="flex items-center gap-3 mb-5 lg:mb-6">
-          <h2 className="text-xl lg:text-2xl font-extrabold text-white">Отзывы</h2>
-          <span className="text-xs lg:text-sm font-semibold text-gray-500 bg-surface-2 px-2.5 py-1 lg:px-3 rounded-lg border border-border">
-            {reviews.length}
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 lg:mb-6">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl lg:text-2xl font-extrabold text-white">Отзывы</h2>
+            <span className="text-xs lg:text-sm font-semibold text-gray-500 bg-surface-2 px-2.5 py-1 lg:px-3 rounded-lg border border-border">
+              {reviews.length}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => void runAiReviewsSummary()}
+            disabled={
+              reviewsLoading
+              || aiLoading
+              || reviews.length < MIN_REVIEWS_FOR_AI
+            }
+            title={
+              reviews.length < MIN_REVIEWS_FOR_AI
+                ? `Нужно минимум ${MIN_REVIEWS_FOR_AI} отзыва`
+                : !isAuthenticated
+                  ? 'Войдите в аккаунт'
+                  : undefined
+            }
+            className={cn(
+              'inline-flex items-center justify-center gap-2 min-h-11 px-4 lg:px-5 rounded-xl border text-[15px] font-semibold transition-all touch-manipulation',
+              'border-violet-500/35 text-violet-200 hover:bg-violet-500/10 hover:border-violet-400/45',
+              'disabled:opacity-40 disabled:pointer-events-none'
+            )}
+          >
+            <Sparkles size={18} strokeWidth={2} className="shrink-0 text-violet-300" />
+            {aiLoading ? 'Анализ…' : 'AI-анализ отзывов'}
+          </button>
         </div>
+
+        {!isAuthenticated && reviews.length >= MIN_REVIEWS_FOR_AI && (
+          <p className="text-xs text-gray-500 mb-4 -mt-2">
+            Войдите, чтобы запросить AI-сводку (нужен аккаунт).
+          </p>
+        )}
+
+        {aiSummary && (
+          <div className="card p-5 sm:p-6 lg:p-7 mb-8 border-violet-500/20 bg-violet-950/[0.12]">
+            <h3 className="text-base lg:text-lg font-bold text-violet-200 mb-3 flex items-center gap-2">
+              <Sparkles size={18} className="text-violet-400" strokeWidth={2} />
+              AI-сводка по отзывам
+            </h3>
+            <p className="text-sm lg:text-[15px] text-gray-200 leading-relaxed mb-4">{aiSummary.summary}</p>
+            {aiSummary.positives.length > 0 && (
+              <div className="mb-3">
+                <p className="text-xs font-semibold text-emerald-400/90 uppercase tracking-wide mb-1.5">Плюсы</p>
+                <ul className="list-disc list-inside text-sm text-gray-300 space-y-0.5">
+                  {aiSummary.positives.map((p, i) => (
+                    <li key={`${i}-${p}`}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {aiSummary.negatives.length > 0 && (
+              <div className="mb-3">
+                <p className="text-xs font-semibold text-rose-400/90 uppercase tracking-wide mb-1.5">Минусы</p>
+                <ul className="list-disc list-inside text-sm text-gray-300 space-y-0.5">
+                  {aiSummary.negatives.map((n, i) => (
+                    <li key={`${i}-${n}`}>{n}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <p className="text-sm text-gray-400 border-t border-white/[0.06] pt-3 mt-2 leading-relaxed">
+              <span className="text-gray-500 font-medium">Вывод: </span>
+              {aiSummary.conclusion}
+            </p>
+          </div>
+        )}
+
+        {aiError && !aiSummary && (
+          <p className="text-sm text-rose-400/90 mb-6">{aiError}</p>
+        )}
 
         {/* Review form */}
         {isAuthenticated && !userHasReview && (
