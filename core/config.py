@@ -27,7 +27,10 @@ class Settings(BaseSettings):
     AI_REVIEWS_TIMEOUT_SEC: float = 60.0
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # Явный путь к корню репозитория: иначе при запуске не из корня (IDE, другой cwd)
+        # pydantic ищет «.env» относительно текущей директории и ключи не подхватываются.
+        env_file=BASE_DIR / ".env",
+        env_file_encoding="utf-8",
         extra="ignore",
     )
 
