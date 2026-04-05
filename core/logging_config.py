@@ -7,13 +7,6 @@ LOG_DIR.mkdir(exist_ok=True)
 
 
 def setup_logging() -> None:
-    """
-    Настраивает логирование для всего приложения.
-    Логи пишутся одновременно в два места:
-      - консоль (stdout) — удобно при разработке
-      - файл logs/app.log — удобно при деплое и отладке
-    """
-
     fmt = logging.Formatter(
         fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
@@ -37,11 +30,4 @@ def setup_logging() -> None:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Возвращает логгер с нужным именем.
-    Использование в любом файле:
-        from core.logging_config import get_logger
-        logger = get_logger(__name__)
-        logger.info("Что-то произошло")
-    """
     return logging.getLogger(name)

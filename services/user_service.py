@@ -80,7 +80,6 @@ async def login_user(db: AsyncSession, email: str, password: str) -> str:
     return token
 
 async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
-    """Обновить профиль юзера"""
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if user is None:
@@ -108,6 +107,5 @@ async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
 
 
 async def delete_user(db: AsyncSession, user: User) -> None:
-    """Удалить пользователя; отзывы и избранное удаляются каскадом в БД."""
     await db.delete(user)
     await db.commit()

@@ -25,7 +25,6 @@ cloudinary.config(
 
 
 def _cloudinary_upload_image(contents: bytes, public_id: str) -> dict:
-    """Синхронный вызов Cloudinary — выполнять через run_in_threadpool."""
     return cloudinary.uploader.upload(
         contents,
         public_id=public_id,

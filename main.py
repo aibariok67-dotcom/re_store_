@@ -65,7 +65,6 @@ app.include_router(favorites.router)
 app.include_router(premium.router)
 app.include_router(ai.router)
 
-# Mount AFTER routers so POST /uploads/image is handled by the router first
 
 @app.on_event("startup")
 async def startup():

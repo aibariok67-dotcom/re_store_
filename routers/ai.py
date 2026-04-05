@@ -16,6 +16,7 @@ logger = get_logger(__name__)
 @router.post(
     "/games/{game_id}/reviews-summary",
     response_model=GameReviewsAISummaryResponse,
+    summary="Сводка отзывов (AI)",
 )
 @limiter.limit("30/hour")
 async def post_game_reviews_ai_summary(
@@ -24,8 +25,6 @@ async def post_game_reviews_ai_summary(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Сводка по отзывам игры через внешний LLM (только для авторизованных пользователей)."""
-    _ = current_user  # защита от злоупотреблений + учёт в лимитере по IP/user при необходимости
     out = await ai_service.summarize_game_reviews(db, game_id)
     logger.info("AI reviews summary: game_id=%s user=%s", game_id, current_user.username)
     return out

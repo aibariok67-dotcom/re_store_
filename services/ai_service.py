@@ -17,6 +17,15 @@ from services import review_service
 logger = get_logger(__name__)
 
 
+def _openai_api_key() -> str:
+    key = (settings.OPENAI_API_KEY or "").strip()
+    placeholder_markers = ("your_", "your-", "test", "example", "твой")
+    lowered = key.lower()
+    if not key or any(lowered.startswith(marker) for marker in placeholder_markers):
+        return ""
+    return key
+
+
 def _build_reviews_context(
     rows: list[tuple[float, str]],
     max_total_chars: int,
@@ -97,9 +106,11 @@ async def _ensure_game_exists(db: AsyncSession, game_id: int) -> str:
 
 
 async def summarize_game_reviews(db: AsyncSession, game_id: int) -> GameReviewsAISummaryResponse:
-    if not (settings.OPENAI_API_KEY or "").strip():
+    api_key = _openai_api_key()
+    if not api_key:
         raise AIServiceError(
-            "AI-анализ не настроен: задайте OPENAI_API_KEY в окружении.",
+            "AI-анализ не настроен: задайте реальный OPENAI_API_KEY в окружении. "
+            "Строки-заглушки вроде 'твой_ключ' не подойдут.",
             status_code=503,
         )
 
@@ -135,7 +146,7 @@ async def summarize_game_reviews(db: AsyncSession, game_id: int) -> GameReviewsA
         "response_format": {"type": "json_object"},
     }
     headers = {
-        "Authorization": f"Bearer {settings.OPENAI_API_KEY.strip()}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 

@@ -13,15 +13,11 @@ import asyncpg
 from core.database import Base, get_db
 from main import app
 
-# По умолчанию тесты запускаются на Postgres (тестовая БД).
-# Если хочешь другую БД — задай `TEST_DATABASE_URL`.
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/re_store_test")
 
 
 @pytest_asyncio.fixture
 async def prepare_database():
-    # Некоторые окружения поднимают Postgres, но не создают тестовую БД.
-    # Поэтому гарантируем наличие `TEST_DATABASE_URL` перед create_all.
     url = make_url(TEST_DATABASE_URL)
     test_db_name = url.database
     if test_db_name:
@@ -76,7 +72,6 @@ async def client(prepare_database):
 
 @pytest_asyncio.fixture
 async def registered_user(client):
-    """Регистрируем обычного юзера и возвращаем его данные"""
     response = await client.post("/auth/register", json={
         "email": "user@test.com",
         "username": "testuser",
@@ -87,7 +82,6 @@ async def registered_user(client):
 
 @pytest_asyncio.fixture
 async def user_token(client, registered_user):
-    """Логиним обычного юзера и возвращаем токен"""
     response = await client.post("/auth/login", json={
         "email": "user@test.com",
         "password": "qwerty123"
@@ -97,13 +91,11 @@ async def user_token(client, registered_user):
 
 @pytest_asyncio.fixture
 async def registered_admin(client):
-    """Регистрируем админа"""
     response = await client.post("/auth/register", json={
         "email": "admin@test.com",
         "username": "testadmin",
         "password": "admin123"
     })
-    # Достаём сессию БД и ставим is_admin = true
     db_override = app.dependency_overrides[get_db]
     async for db in db_override():
         from sqlalchemy import update
@@ -119,7 +111,6 @@ async def registered_admin(client):
 
 @pytest_asyncio.fixture
 async def admin_token(client, registered_admin):
-    """Логиним админа и возвращаем токен"""
     response = await client.post("/auth/login", json={
         "email": "admin@test.com",
         "password": "admin123"

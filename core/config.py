@@ -16,7 +16,6 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
 
-    # AI: сводка по отзывам (OpenAI-compatible Chat Completions)
     OPENAI_API_KEY: str = ""
     AI_REVIEWS_API_URL: str = "https://api.openai.com/v1/chat/completions"
     AI_REVIEWS_MODEL: str = "gpt-4o-mini"
@@ -27,8 +26,6 @@ class Settings(BaseSettings):
     AI_REVIEWS_TIMEOUT_SEC: float = 60.0
 
     model_config = SettingsConfigDict(
-        # Явный путь к корню репозитория: иначе при запуске не из корня (IDE, другой cwd)
-        # pydantic ищет «.env» относительно текущей директории и ключи не подхватываются.
         env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8",
         extra="ignore",

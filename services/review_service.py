@@ -17,7 +17,6 @@ async def count_reviews_for_game(db: AsyncSession, game_id: int) -> int:
 async def get_reviews_for_ai_context(
     db: AsyncSession, game_id: int, limit: int
 ) -> list[tuple[float, str]]:
-    """Только рейтинг и текст, новые первыми — для LLM без персональных данных."""
     result = await db.execute(
         select(Review.rating, Review.text)
         .where(Review.game_id == game_id)

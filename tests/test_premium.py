@@ -75,7 +75,6 @@ class TestPremium:
             json={"premium_theme": "not-a-theme", "banner_url": None},
             headers={"Authorization": f"Bearer {user_token}"},
         )
-        # Pydantic валидатор выдаёт 422
         assert res.status_code == 422
 
     @pytest.mark.asyncio

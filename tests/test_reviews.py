@@ -4,7 +4,6 @@ import pytest
 class TestGetReviews:
     @pytest.mark.asyncio
     async def test_get_reviews_by_game(self, client, admin_token, user_token):
-        # Создаём игру как админ и отзыв как обычный юзер
         game = await client.post(
             "/games/",
             json={"title": "Witcher 3"},
@@ -26,7 +25,6 @@ class TestGetReviews:
 
     @pytest.mark.asyncio
     async def test_get_reviews_empty(self, client, admin_token):
-        # Игра без отзывов
         game = await client.post(
             "/games/",
             json={"title": "New Game"},
@@ -42,7 +40,6 @@ class TestGetReviews:
 class TestCreateUserReview:
     @pytest.mark.asyncio
     async def test_create_review_success(self, client, admin_token, user_token):
-        # Создаём игру как админ
         game = await client.post(
             "/games/",
             json={"title": "Witcher 3"},
@@ -50,7 +47,6 @@ class TestCreateUserReview:
         )
         game_id = game.json()["id"]
 
-        # Создаём отзыв как обычный юзер
         response = await client.post(
             "/reviews/",
             json={"game_id": game_id, "rating": 8.0, "text": "Хорошая игра"},
@@ -63,7 +59,6 @@ class TestCreateUserReview:
 
     @pytest.mark.asyncio
     async def test_create_review_duplicate(self, client, admin_token, user_token):
-        # Нельзя написать два отзыва на одну игру
         game = await client.post(
             "/games/",
             json={"title": "Witcher 3"},
@@ -121,7 +116,6 @@ class TestCreateUserReview:
 class TestDeleteReview:
     @pytest.mark.asyncio
     async def test_delete_own_review(self, client, admin_token, user_token):
-        # Юзер удаляет свой отзыв
         game = await client.post(
             "/games/",
             json={"title": "Witcher 3"},
@@ -131,7 +125,6 @@ class TestDeleteReview:
 
         review = await client.post(
             "/reviews/",
-            # ReviewCreate валидатор требует минимум 10 символов.
             json={"game_id": game_id, "rating": 8.0, "text": "Мой личный отзыв"},
             headers={"Authorization": f"Bearer {user_token}"},
         )
@@ -145,7 +138,6 @@ class TestDeleteReview:
 
     @pytest.mark.asyncio
     async def test_delete_other_user_review(self, client, admin_token, user_token):
-        # Юзер не может удалить чужой отзыв
         other = await client.post(
             "/auth/register",
             json={
@@ -183,7 +175,6 @@ class TestDeleteReview:
 
     @pytest.mark.asyncio
     async def test_admin_delete_any_review(self, client, admin_token, user_token):
-        # Админ может удалить любой отзыв
         game = await client.post(
             "/games/",
             json={"title": "Witcher 3"},

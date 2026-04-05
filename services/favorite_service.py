@@ -44,7 +44,6 @@ async def remove_favorite(db, user_id, game_id):
 
 
 async def get_favorites_for_user(db: AsyncSession, user_id: int) -> list[tuple[Game, float | None]]:
-    """Избранные игры пользователя с средним рейтингом отзывов на сайте."""
     result = await db.execute(
         select(Game, REVIEW_AVG_SUBQ.c.reviews_rating_avg)
         .join(Favorite, Favorite.game_id == Game.id)

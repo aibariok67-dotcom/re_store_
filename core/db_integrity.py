@@ -1,5 +1,3 @@
-"""Helpers for SQLAlchemy IntegrityError (unique vs other constraints)."""
-
 from sqlalchemy.exc import IntegrityError
 
 

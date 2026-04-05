@@ -113,7 +113,6 @@ async def get_game_with_review_avg(db: AsyncSession, game_id: int) -> tuple[Game
 
 
 async def _resolve_relations(db: AsyncSession, category_ids: list[int], platform_ids: list[int]):
-    """Load Category and Platform ORM objects by their IDs."""
     categories = []
     if category_ids:
         result = await db.execute(select(Category).where(Category.id.in_(category_ids)))

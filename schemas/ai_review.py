@@ -2,8 +2,6 @@ from pydantic import BaseModel, Field
 
 
 class GameReviewsAISummaryResponse(BaseModel):
-    """Ответ API для клиента."""
-
     game_id: int
     summary: str = Field(..., min_length=1, max_length=2000)
     positives: list[str] = Field(default_factory=list, max_length=30)
@@ -12,8 +10,6 @@ class GameReviewsAISummaryResponse(BaseModel):
 
 
 class _LLMReviewAnalysisShape(BaseModel):
-    """Строгая форма JSON из ответа модели (без game_id — подставляем на бэкенде)."""
-
     summary: str = Field(..., min_length=1, max_length=2000)
     positives: list[str] = Field(default_factory=list, max_length=30)
     negatives: list[str] = Field(default_factory=list, max_length=30)
@@ -21,7 +17,6 @@ class _LLMReviewAnalysisShape(BaseModel):
 
     @classmethod
     def normalize_lists(cls, data: dict) -> dict:
-        """Подчищаем типичный мусор: не-строки в списках, пустые элементы."""
         out = dict(data)
         for key in ("positives", "negatives"):
             raw = out.get(key) or []
