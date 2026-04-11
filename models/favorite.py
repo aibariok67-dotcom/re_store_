@@ -13,3 +13,4 @@ class Favorite(Base):
     __table_args__ = (
         UniqueConstraint("user_id", "game_id", name="unique_user_game_favorite"),
     )
+a = "r"
